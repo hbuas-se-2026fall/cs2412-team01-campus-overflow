@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ "main", "develop" ]
 
+# 同一 PR / 分支有新推送时取消旧的运行，节省 Actions 额度
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   # 渐进式质量门禁：Sprint 1 阶段只测试这些模块
   SPRINT_MODULES: co-shared-kernel, co-identity/co-identity-domain, co-identity/co-identity-application, co-qa/co-qa-domain, co-qa/co-qa-application
@@ -14,6 +19,7 @@ jobs:
   backend:
     name: 后端构建与验证
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,19 +31,18 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 关键修复：全局安装所有模块（跳过测试），确保本地仓库有所有的 SNAPSHOT 包
-      - name: 安装所有依赖模块 (跳过测试)
-        run: mvn -B -f backend/pom.xml install -DskipTests
-
       - name: 单元测试 (Sprint范围)
         run: mvn -B -f backend/pom.xml test -pl "$SPRINT_MODULES" -am
 
+      # -am 在同一次 reactor 构建中编译所有依赖模块，无需先全量 install；
+      # -Dtest 只匹配 ArchitectureTest，其余模块不会重复跑测试
       - name: 架构约束检查
-        run: mvn -B -f backend/pom.xml test -pl co-bootstrap -Dtest=ArchitectureTest
+        run: mvn -B -f backend/pom.xml test -pl co-bootstrap -am -Dtest=ArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false
 
   frontend:
     name: 前端构建
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,7 +55,7 @@ jobs:
 
       - name: 安装依赖
         working-directory: ./frontend
-        run: npm install # 用 install 替代 ci，避免强制要求 package-lock.json
+        run: npm install --no-audit --no-fund # 用 install 替代 ci，避免强制要求 package-lock.json
 
       - name: 构建
         working-directory: ./frontend
