@@ -35,8 +35,10 @@
         <commonmark.version>0.24.0</commonmark.version>
         <owasp-sanitizer.version>20240325.1</owasp-sanitizer.version>
         <jacoco.version>0.8.12</jacoco.version>
-        <!-- 领域层行覆盖率门禁（适应度函数 FF-4）。学生版初始为 0，Sprint 4 前应提升到 0.80 -->
-        <domain.coverage.minimum>0</domain.coverage.minimum>
+        <!-- 领域层行覆盖率门禁（适应度函数 FF-4）。实测 co-qa-domain 93.24% /
+             co-reputation-domain 100%（含 #43）/ co-discovery-domain 79.12% /
+             co-identity-domain 75.74%，留出测量波动余量取 0.75；Sprint 4 目标 0.80 -->
+        <domain.coverage.minimum>0.75</domain.coverage.minimum>
     </properties>
 
     <dependencyManagement>
@@ -182,29 +184,54 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- 覆盖率门禁 = 适应度函数 FF-4。
+                     配置只声明在这里，由 co-identity-domain / co-qa-domain /
+                     co-reputation-domain / co-discovery-domain 四个模块显式引用后继承。
+                     不能写在 <build><plugins>：那样会被所有子模块继承，而 co-shared-kernel、
+                     co-*-application 等模块的行覆盖率远低于阈值（实测 0.31 / 0.54），
+                     一进 verify 阶段就会红。阈值仍由 domain.coverage.minimum 统一给，
+                     某个模块需要不同口径时在自己的 pom 里覆盖即可。 -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${jacoco.version}</version>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals><goal>prepare-agent</goal></goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>verify</phase>
+                            <goals><goal>report</goal></goals>
+                        </execution>
+                        <execution>
+                            <id>check-coverage</id>
+                            <goals><goal>check</goal></goals>
+                            <!-- check 默认 haltOnFailure=false：不达标只打 WARNING，
+                                 构建照样 BUILD SUCCESS，门禁等于没设。必须显式打开，
+                                 并配一次反向验证确认它真的会红。 -->
+                            <configuration>
+                                <haltOnFailure>true</haltOnFailure>
+                                <rules>
+                                    <rule>
+                                        <element>BUNDLE</element>
+                                        <limits>
+                                            <limit>
+                                                <counter>LINE</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>${domain.coverage.minimum}</minimum>
+                                            </limit>
+                                        </limits>
+                                    </rule>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals><goal>prepare-agent</goal></goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>verify</phase>
-                        <goals><goal>report</goal></goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
