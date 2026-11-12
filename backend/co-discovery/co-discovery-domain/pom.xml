@@ -29,29 +29,13 @@
     </dependencies>
     <build>
         <plugins>
+            <!-- 只声明插件，不写 version 也不写 executions：
+                 版本与 prepare-agent / report / check-coverage 三个 execution
+                 全部从父 POM 的 <pluginManagement> 继承。
+                 这样门禁规则只维护一处，又不会波及非领域模块。 -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>check-domain-coverage</id>
-                        <goals><goal>check</goal></goals>
-                        <configuration>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>${domain.coverage.minimum}</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
