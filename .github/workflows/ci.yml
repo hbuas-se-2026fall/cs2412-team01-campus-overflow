@@ -33,8 +33,10 @@ jobs:
       - name: 安装所有依赖模块 (跳过测试)
         run: mvn -B -f backend/pom.xml install -DskipTests
 
-      - name: 单元测试 (领域层 + 应用层)
-        run: mvn -B -f backend/pom.xml test -pl "$SPRINT_MODULES" -am
+      # 用 verify 而不是 test：jacoco 的 report 与 check 都绑定在 verify 阶段的
+      # prepare-agent -> report -> check 链上，只跑到 test 阶段的话覆盖率门禁一次都不会执行。
+      - name: 单元测试 + 覆盖率门禁 (领域层 + 应用层)
+        run: mvn -B -f backend/pom.xml verify -DskipITs -pl "$SPRINT_MODULES" -am
 
       - name: 架构约束检查
         run: mvn -B -f backend/pom.xml test -pl co-bootstrap -Dtest=ArchitectureTest
