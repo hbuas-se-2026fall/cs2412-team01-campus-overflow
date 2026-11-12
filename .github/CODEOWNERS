@@ -1,0 +1,26 @@
+# CODEOWNERS —— 第一评审责任人（按限界上下文指派，自动请求评审）
+# 规则：每个路径至少 2 名 owner；“最后匹配的规则生效”，因此通配规则放最前面。
+# 成员：@jingmo2233 = 韦国超（PO）｜@fxs0917 = 冯先顺（SM）｜@XY1897 = 宾艺涵（Q&A）
+#       @yttt697 = 陈阳（Reputation / Discovery / QA）｜@llll-b01 = 张博（前端）
+# 注意：仓库改名或成员 GitHub 用户名变更后，此处必须同步，否则评审请求会静默失效。
+
+# 兜底：任何未被下面规则覆盖的改动
+*                                   @jingmo2233 @fxs0917
+
+# 跨上下文协作基础设施：影响所有组
+/.github/                           @jingmo2233 @fxs0917
+/deploy/                            @jingmo2233 @fxs0917
+
+# 共享内核：改动影响全部上下文，必须两人评审（含 PO）
+/backend/co-shared-kernel/          @jingmo2233 @yttt697 @XY1897
+/backend/co-bootstrap/              @jingmo2233 @fxs0917
+
+# 各限界上下文：主责人 + 交叉评审
+/backend/co-qa/                     @XY1897 @jingmo2233
+/backend/co-reputation/             @yttt697 @jingmo2233
+/backend/co-discovery/              @yttt697 @XY1897
+/backend/co-identity/               @jingmo2233 @yttt697
+
+# 前端与文档
+/frontend/                          @jingmo2233 @llll-b01
+/docs/                              @jingmo2233 @fxs0917
