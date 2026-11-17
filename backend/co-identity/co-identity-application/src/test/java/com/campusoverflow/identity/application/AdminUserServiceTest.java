@@ -7,6 +7,7 @@ import com.campusoverflow.identity.api.event.UserRegisteredEvent;
 import com.campusoverflow.identity.application.fake.IdentityTestFixtures.InMemoryUsers;
 import com.campusoverflow.identity.application.fake.IdentityTestFixtures.RecordingAudit;
 import com.campusoverflow.identity.application.fake.IdentityTestFixtures.RecordingEvents;
+import com.campusoverflow.identity.application.fake.IdentityTestFixtures.RecordingSessions;
 import com.campusoverflow.identity.application.fake.IdentityTestFixtures.StubHasher;
 import com.campusoverflow.identity.domain.User;
 import com.campusoverflow.identity.domain.UserStatus;
@@ -38,7 +39,8 @@ class AdminUserServiceTest {
     private final StubHasher hasher = new StubHasher();
     private final RecordingEvents events = new RecordingEvents();
     private final RecordingAudit audit = new RecordingAudit();
-    private final AdminUserService service = new AdminUserService(users, hasher, events, audit,
+    private final RecordingSessions sessions = new RecordingSessions();
+    private final AdminUserService service = new AdminUserService(users, hasher, events, audit, sessions,
             Clock.fixed(NOW, ZoneOffset.UTC));
 
     private final Actor admin = new Actor(ADMIN_ID, "系统管理员", Role.ADMIN);
@@ -163,6 +165,60 @@ class AdminUserServiceTest {
     void nonAdminCannotListByVerification() {
         assertThatThrownBy(() -> service.listByVerification(student, false, new PageRequest(1, 10)))
                 .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    @DisplayName("禁用账号：状态变为 DISABLED，删除其全部会话并写审计")
+    void disableRevokesAllSessions() {
+        sessions.online.put("2025001", 2);
+
+        service.disable(admin, STUDENT_ID);
+
+        User disabled = users.findById(STUDENT_ID).orElseThrow();
+        assertThat(disabled.status()).isEqualTo(UserStatus.DISABLED);
+        assertThat(disabled.canLogin()).isFalse();
+        assertThat(sessions.revoked).containsExactly("2025001");
+        assertThat(audit.actions).contains("USER_DISABLED");
+        assertThat(audit.details).contains("revokedSessions=2");
+    }
+
+    @Test
+    @DisplayName("重复禁用被拒绝，且不会再次清理会话")
+    void disableTwiceRejected() {
+        service.disable(admin, STUDENT_ID);
+
+        assertThatThrownBy(() -> service.disable(admin, STUDENT_ID))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("已被禁用");
+        assertThat(sessions.revoked).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("非管理员不能禁用账号，目标会话不受影响")
+    void nonAdminCannotDisable() {
+        assertThatThrownBy(() -> service.disable(teacher, STUDENT_ID))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessageContaining("仅管理员");
+        assertThat(users.findById(STUDENT_ID).orElseThrow().canLogin()).isTrue();
+        assertThat(sessions.revoked).isEmpty();
+        assertThat(audit.actions).doesNotContain("USER_DISABLED");
+    }
+
+    @Test
+    @DisplayName("管理员不能禁用自己")
+    void cannotDisableSelf() {
+        assertThatThrownBy(() -> service.disable(admin, ADMIN_ID))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("不能禁用自己");
+        assertThat(sessions.revoked).isEmpty();
+    }
+
+    @Test
+    @DisplayName("禁用不存在的用户返回 404")
+    void disableUnknownUserRejected() {
+        assertThatThrownBy(() -> service.disable(admin, 404L))
+                .isInstanceOf(NotFoundException.class);
+        assertThat(sessions.revoked).isEmpty();
     }
 
     private static User user(long id, String username, String displayName, Role role, boolean verified) {
