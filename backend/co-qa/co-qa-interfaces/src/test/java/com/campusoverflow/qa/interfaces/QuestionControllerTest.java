@@ -2,7 +2,6 @@ package com.campusoverflow.qa.interfaces;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -13,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.campusoverflow.qa.application.command.QuestionCommandService;
+import com.campusoverflow.qa.application.query.QuestionFilter;
 import com.campusoverflow.qa.application.query.QuestionQueryService;
 import com.campusoverflow.qa.application.query.QuestionSummaryView;
 import com.campusoverflow.shared.page.PageRequest;
@@ -49,42 +49,44 @@ class QuestionControllerTest {
 
     @Test
     void listUsesDefaultPaging() throws Exception {
-        given(queries.list(isNull(), any(PageRequest.class)))
+        given(queries.list(eq(QuestionFilter.ALL), any(PageRequest.class)))
                 .willReturn(PageResult.empty(1, 20));
 
         mvc.perform(get("/api/v1/questions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total").value(0));
 
-        verify(queries).list(null, new PageRequest(1, 20));
+        // 无查询参数时控制器等价于 QuestionFilter.ALL（newest / 不筛选）。
+        verify(queries).list(QuestionFilter.ALL, new PageRequest(1, 20));
     }
 
     @Test
     void listClampsOutOfRangePaging() throws Exception {
-        given(queries.list(any(), any(PageRequest.class))).willReturn(PageResult.empty(1, 50));
+        given(queries.list(any(QuestionFilter.class), any(PageRequest.class))).willReturn(PageResult.empty(1, 50));
 
         mvc.perform(get("/api/v1/questions").param("page", "0").param("size", "999"))
                 .andExpect(status().isOk());
 
-        // 越界参数在接口层被夹紧成 page=1 / size=50，不把脏值透给应用层。
-        verify(queries).list(null, new PageRequest(1, 50));
+        // 越界参数在接口层被夹紧成 page=1 / size=50，不把脏值透给应用层；
+        // 无任何查询参数时等价于 QuestionFilter.ALL。
+        verify(queries).list(QuestionFilter.ALL, new PageRequest(1, 50));
     }
 
     @Test
     void listPassesCourseFilter() throws Exception {
-        given(queries.list(eq(3L), any(PageRequest.class))).willReturn(PageResult.empty(1, 20));
+        given(queries.list(any(QuestionFilter.class), any(PageRequest.class))).willReturn(PageResult.empty(1, 20));
 
         mvc.perform(get("/api/v1/questions").param("courseId", "3"))
                 .andExpect(status().isOk());
 
-        verify(queries).list(3L, new PageRequest(1, 20));
+        verify(queries).list(QuestionFilter.of(3L, null, QuestionFilter.Sort.NEWEST, false), new PageRequest(1, 20));
     }
 
     @Test
     void listReturnsItemsFromQueryService() throws Exception {
         QuestionSummaryView view = new QuestionSummaryView(11L, "跳表怎么实现", "摘要", List.of("数据结构"), 3L,
                 null, 5, 2, 40, false, java.time.Instant.parse("2026-11-12T04:00:00Z"));
-        given(queries.list(any(), any(PageRequest.class)))
+        given(queries.list(any(QuestionFilter.class), any(PageRequest.class)))
                 .willReturn(new PageResult<>(List.of(view), 1, 1, 20));
 
         mvc.perform(get("/api/v1/questions"))
