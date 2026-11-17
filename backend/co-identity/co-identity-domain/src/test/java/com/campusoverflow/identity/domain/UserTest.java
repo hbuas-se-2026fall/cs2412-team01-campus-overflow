@@ -58,6 +58,37 @@ class UserTest {
     }
 
     @Test
+    void adminDisablesUserOnlyOnceAndUserCanNoLongerLogin() {
+        User u = newStudent();
+        u.assignId(10);
+        u.disable(admin);
+        assertThat(u.status()).isEqualTo(UserStatus.DISABLED);
+        assertThat(u.canLogin()).isFalse();
+        assertThatThrownBy(() -> u.disable(admin)).isInstanceOf(ConflictException.class).hasMessageContaining("已被禁用");
+    }
+
+    @Test
+    void nonAdminCannotDisable() {
+        User u = newStudent();
+        u.assignId(10);
+        assertThatThrownBy(() -> u.disable(student)).isInstanceOf(ForbiddenException.class);
+        assertThat(u.canLogin()).isTrue();
+    }
+
+    @Test
+    void adminCannotDisableSelf() {
+        User self = User.reconstitute(1L, "admin01", "admin", "a@b.cn", "h", Role.ADMIN, UserStatus.ACTIVE,
+                true, null, null, NOW, 0);
+        assertThatThrownBy(() -> self.disable(admin)).isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("不能禁用自己");
+    }
+
+    @Test
+    void disablingUnsavedUserIsIllegal() {
+        assertThatThrownBy(() -> newStudent().disable(admin)).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     void staffAccountsAreVerifiedAndCannotBeStudents() {
         User t = User.createStaff(admin, "T2001", "王老师", "wang@campus.edu", "h", Role.TEACHER, "计算机工程学院", NOW);
         assertThat(t.verified()).isTrue();
