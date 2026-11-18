@@ -32,6 +32,8 @@ spring:
     timeout: 30m
     redis:
       namespace: co:session
+      # indexed：维护“主体名 → 会话”索引，禁用账号时才能找到并删除其全部会话（PB-40 / ADR-003）
+      repository-type: indexed
   jackson:
     serialization:
       write-dates-as-timestamps: false

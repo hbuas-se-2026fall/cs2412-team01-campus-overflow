@@ -1,5 +1,6 @@
 package com.campusoverflow.identity.application.fake;
 
+import com.campusoverflow.identity.application.SessionRevoker;
 import com.campusoverflow.identity.domain.Course;
 import com.campusoverflow.identity.domain.CourseMember;
 import com.campusoverflow.identity.domain.CourseRepository;
@@ -185,6 +186,19 @@ public final class IdentityTestFixtures {
         public void record(String action, Long actorId, String targetType, String targetId, String detail) {
             actions.add(action);
             details.add(detail);
+        }
+    }
+
+    /** 记录被强制下线的账号；可预置每个账号的在线会话数。 */
+    public static class RecordingSessions implements SessionRevoker {
+        public final Map<String, Integer> online = new LinkedHashMap<>();
+        public final List<String> revoked = new ArrayList<>();
+
+        @Override
+        public int revokeAll(String username) {
+            revoked.add(username);
+            Integer count = online.remove(username);
+            return count == null ? 0 : count;
         }
     }
 }

@@ -102,6 +102,9 @@ public class User {
         if (actor.is(requireId())) {
             throw new BusinessRuleException("ID-1007", "不能禁用自己的账号");
         }
+        if (status == UserStatus.DISABLED) {
+            throw new ConflictException("ID-2007", "该用户已被禁用");
+        }
         this.status = UserStatus.DISABLED;
     }
 
