@@ -70,6 +70,13 @@ public class AdminUserController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "禁用账号并强制下线")
+    @PostMapping("/{userId}/disable")
+    public ResponseEntity<Void> disable(@Parameter(hidden = true) Actor actor, @PathVariable long userId) {
+        admin.disable(actor, userId);
+        return ResponseEntity.noContent().build();
+    }
+
     public record CreateStaffRequest(@NotBlank String username, @NotBlank String displayName,
                                      @NotBlank String email, @NotBlank String password, @NotNull Role role,
                                      String college) {
