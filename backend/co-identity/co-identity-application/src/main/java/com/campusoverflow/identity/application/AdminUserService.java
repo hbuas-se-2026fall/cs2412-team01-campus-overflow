@@ -20,7 +20,7 @@ import java.time.Clock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** 用例：管理员的用户管理（校园身份认证、创建教职工、调整角色）。 */
+/** 用例：管理员的用户管理（校园身份认证、创建教职工、调整角色、禁用账号）。 */
 @Service
 public class AdminUserService {
 
@@ -28,14 +28,16 @@ public class AdminUserService {
     private final PasswordHasher hasher;
     private final IntegrationEventPublisher events;
     private final AuditTrail audit;
+    private final SessionRevoker sessions;
     private final Clock clock;
 
     public AdminUserService(UserRepository users, PasswordHasher hasher, IntegrationEventPublisher events,
-                            AuditTrail audit, Clock clock) {
+                            AuditTrail audit, SessionRevoker sessions, Clock clock) {
         this.users = users;
         this.hasher = hasher;
         this.events = events;
         this.audit = audit;
+        this.sessions = sessions;
         this.clock = clock;
     }
 
@@ -77,6 +79,16 @@ public class AdminUserService {
         user.changeRole(actor, role);
         users.save(user);
         audit.record("ROLE_CHANGED", actor.userId(), "USER", String.valueOf(userId), old + " -> " + role);
+    }
+
+    /** 禁用账号并立即强制下线（ADR-003）：先落库，再删除该账号的全部会话。 */
+    @Transactional
+    public void disable(Actor actor, long userId) {
+        User user = load(userId);
+        user.disable(actor);
+        users.save(user);
+        int revoked = sessions.revokeAll(user.username());
+        audit.record("USER_DISABLED", actor.userId(), "USER", String.valueOf(userId), "revokedSessions=" + revoked);
     }
 
     private User load(long userId) {

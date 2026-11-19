@@ -29,27 +29,17 @@
     </dependencies>
     <build>
         <plugins>
+            <!-- 版本、prepare-agent / report 的执行配置全部从父 POM 的 <pluginManagement> 继承。
+                 check-coverage 这里显式写一个 execution，是因为父 POM 若直接给 check 配 execution，
+                 会顺着继承链跑到所有模块上（co-shared-kernel 行覆盖只有 0.31，verify 必红）。
+                 这里只负责「激活」，阈值与 haltOnFailure 仍只在父 POM 维护一份。 -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>check-domain-coverage</id>
+                        <id>check-coverage</id>
                         <goals><goal>check</goal></goals>
-                        <configuration>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>${domain.coverage.minimum}</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
