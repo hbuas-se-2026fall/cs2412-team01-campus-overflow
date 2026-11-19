@@ -1,0 +1,1381 @@
+﻿id,title,epic,priority,sp,sprint,milestone,labels,body,issue
+PB-01,"教师组织中的本组私有仓库、受保护分支、Issue/PR 模板与看板",E0,Must,3,S0,"Sprint 0","type:story,ctx:infra,priority:must","## 用户故事
+
+作为团队，我们需要教师组织中的本组私有仓库、受保护分支、Issue/PR 模板与看板，以便所有代码经评审后集成
+
+## 归属
+
+- 史诗：E0
+- 限界上下文：`ctx:infra`
+- 前置依赖：—
+- Sprint：S0｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：本组仓库设置、`.github/`
+- 状态：🟡 模板与 CODEOWNERS 已补，待评审确认
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",24
+PB-02,"一键启动 MySQL/Redis/后端/前端并跑通测试",E0,Must,2,S0,"Sprint 0","type:story,ctx:infra,priority:must","## 用户故事
+
+作为开发者，我需要一键启动 MySQL/Redis/后端/前端并跑通测试，以便在一致的环境中开发
+
+## 归属
+
+- 史诗：E0
+- 限界上下文：`ctx:infra`
+- 前置依赖：—
+- Sprint：S0｜故事点：2
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`deploy/docker-compose.yml`
+- 状态：✅ 已验收
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 2）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-03,"事件风暴产出的统一语言与上下文映射",E0,Must,3,S0,"Sprint 0","type:story,ctx:infra,priority:must","## 用户故事
+
+作为团队，我们需要事件风暴产出的统一语言与上下文映射，以便沟通与编码一致
+
+## 归属
+
+- 史诗：E0
+- 限界上下文：`ctx:infra`
+- 前置依赖：—
+- Sprint：S0｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`docs/ddd/`
+- 状态：🟡 三件套已补，待评审
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-04,"渐进式 CI 门禁",E0,Must,2,S0,"Sprint 0","type:story,ctx:infra,priority:must","## 用户故事
+
+作为团队，我们需要渐进式 CI 门禁，以便每个 Sprint 结束时流水线都是绿的
+
+## 归属
+
+- 史诗：E0
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-01
+- Sprint：S0｜故事点：2
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`.github/workflows/ci.yml`、ADR-009
+- 状态：🟡 缺覆盖率/集成测试/镜像阶段
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 2）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",25
+PB-05,"注册、登录并在课程页面浏览和加入课程",E1,Must,3,S0,"Sprint 0","type:story,ctx:identity,priority:must","## 用户故事
+
+作为学生，我可以注册、登录并在课程页面浏览和加入课程，以便在课程问答区提问
+
+## 归属
+
+- 史诗：E1
+- 限界上下文：`ctx:identity`
+- 前置依赖：—
+- Sprint：S0｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`IdentityApiImplTest`
+
+## 规格与实现落点
+
+- 实现落点：Identity（已实现）+ 前端课程页
+- 状态：✅ 已验收
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-06,"发布带标签、可关联课程的问题",E2,Must,5,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为学生，我可以发布带标签、可关联课程的问题，以便向同学和老师求助
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-05
+- Sprint：S1｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`MarkdownBodyTest`、`QuestionCommandServiceTest`、`QuestionControllerTest`、`QuestionQueryServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`Question.post`、`MarkdownBody`、`Tags`、`QuestionCommandService.post`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",10
+PB-07,"分页浏览（按课程筛选）问题列表",E2,Must,3,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为用户，我可以分页浏览（按课程筛选）问题列表，以便发现待解决的问题
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-06
+- Sprint：S1｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`QuestionCommandServiceTest`、`QuestionControllerTest`、`QuestionQueryServiceTest`、`QuestionTest`
+
+## 规格与实现落点
+
+- 实现落点：`QuestionQueryService.list`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",11
+PB-08,"查看问题详情（渲染后的正文、回答、评论、我的投票、可用操作）",E2,Must,5,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为用户，我可以查看问题详情（渲染后的正文、回答、评论、我的投票、可用操作）
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-06
+- Sprint：S1｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 场景文件：[`docs/backlog/stories/pb-08-detail.feature`](../blob/develop/docs/backlog/stories/pb-08-detail.feature)（快乐 / 边界 / 异常三路径）
+
+- 规格来源（测试即规格）：`QuestionCommandServiceTest`、`QuestionControllerTest`、`QuestionQueryServiceTest`、`QuestionTest`
+
+## 规格与实现落点
+
+- 实现落点：`QuestionQueryService.detail`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-09,"回答未删除的问题",E2,Must,3,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为学生，我可以回答未删除的问题，以便帮助提问者
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-06
+- Sprint：S1｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 场景文件：[`docs/backlog/stories/pb-09-answer.feature`](../blob/develop/docs/backlog/stories/pb-09-answer.feature)（快乐 / 边界 / 异常三路径）
+
+- 规格来源（测试即规格）：`AnswerAndVoteServiceTest`、`AnswerTest`
+
+## 规格与实现落点
+
+- 实现落点：`Answer.submit`、`AnswerCommandService.submit`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",12
+PB-10,"采纳一个最佳答案",E2,Must,5,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为提问者或课程管理者，我可以采纳一个最佳答案，以便标记问题已解决
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-09
+- Sprint：S1｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 场景文件：[`docs/backlog/stories/pb-10-accept.feature`](../blob/develop/docs/backlog/stories/pb-10-accept.feature)（快乐 / 边界 / 异常三路径）
+
+- 规格来源（测试即规格）：`AnswerAndVoteServiceTest`、`AnswerTest`、`QuestionCommandServiceTest`、`QuestionControllerTest`
+
+## 规格与实现落点
+
+- 实现落点：`Question.accept`、`AnswerCommandService.accept`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",13
+PB-11,"对他人的问题/回答投票、改投或撤销",E2,Must,5,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为用户，我可以对他人的问题/回答投票、改投或撤销，以便评价内容质量
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-08
+- Sprint：S1｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 场景文件：[`docs/backlog/stories/pb-11-vote.feature`](../blob/develop/docs/backlog/stories/pb-11-vote.feature)（快乐 / 边界 / 异常三路径）
+
+- 规格来源（测试即规格）：`VoteAndCommentBoundaryTest`、`VoteAndCommentTest`
+
+## 规格与实现落点
+
+- 实现落点：`Vote`、`VoteService`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",14
+PB-12,"编辑问题和回答",E2,Must,3,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为作者或课程管理者，我可以编辑问题和回答，以便修正内容
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-06、PB-09
+- Sprint：S1｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`AnswerAndVoteServiceTest`、`AnswerTest`、`QuestionCommandServiceTest`、`QuestionControllerTest`
+
+## 规格与实现落点
+
+- 实现落点：`Question.edit`、`Answer.edit`、`*CommandService.edit`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-13,"软删除问题和回答",E2,Must,3,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为作者或课程管理者，我可以软删除问题和回答，以便清理不当内容且可追责
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-12
+- Sprint：S1｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`AnswerAndVoteServiceTest`、`AnswerTest`、`CommentServiceTest`、`CommonmarkContentRendererTest`
+
+## 规格与实现落点
+
+- 实现落点：`softDelete`、`delete` 用例
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-14,"为优质回答做“教师认证”",E2,Should,2,S1,"Sprint 1","type:story,ctx:qa,priority:should","## 用户故事
+
+作为课程教师/助教，我可以为优质回答做“教师认证”，以便给学生权威指引
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-09
+- Sprint：S1｜故事点：2
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`AnswerAndVoteServiceTest`、`AnswerTest`
+
+## 规格与实现落点
+
+- 实现落点：`Answer.endorse`、`AnswerCommandService.endorse`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 2）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-15,"评论问题或回答并进行一层回复",E2,Must,3,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为用户，我可以评论问题或回答并进行一层回复，以便追问与澄清
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-08
+- Sprint：S1｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 场景文件：[`docs/backlog/stories/pb-15-comment.feature`](../blob/develop/docs/backlog/stories/pb-15-comment.feature)（快乐 / 边界 / 异常三路径）
+
+- 规格来源（测试即规格）：`CommentServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`Comment.post`、`CommentService`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",5
+PB-16,"看到热门标签",E2,Should,1,S1,"Sprint 1","type:story,ctx:qa,priority:should","## 用户故事
+
+作为用户，我可以看到热门标签，以便按主题浏览
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-06
+- Sprint：S1｜故事点：1
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`AnswerAndVoteServiceTest`、`AnswerTest`、`CommentServiceTest`、`CommonmarkContentRendererTest`
+
+## 规格与实现落点
+
+- 实现落点：`popularTags`、`Tags.names`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 1）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-17,"通过 `QaQueryApi` 查询问题引用",E2,Must,1,S1,"Sprint 1","type:story,ctx:qa,priority:must","## 用户故事
+
+作为其他上下文，我可以通过 `QaQueryApi` 查询问题引用，以便悬赏与通知使用
+
+## 归属
+
+- 史诗：E2
+- 限界上下文：`ctx:qa`
+- 前置依赖：PB-06
+- Sprint：S1｜故事点：1
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`QuestionCommandServiceTest`、`QuestionControllerTest`、`QuestionQueryServiceTest`、`QuestionTest`
+
+## 规格与实现落点
+
+- 实现落点：`QaQueryApiImpl.findQuestion`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 1）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-18,"行走骨架（未实现监听器暂为空实现）",E0,Must,1,S1,"Sprint 1","type:story,ctx:infra,priority:must","## 用户故事
+
+作为团队，我们需要行走骨架（未实现监听器暂为空实现），以便发件箱不被阻塞
+
+## 归属
+
+- 史诗：E0
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-04
+- Sprint：S1｜故事点：1
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`DiscoveryDomainTest`、`DiscoveryQueryServiceTest`、`DiscoveryQueryServiceViewMappingTest`、`DiscoverySearchAndNotificationBoundaryTest`
+
+## 规格与实现落点
+
+- 实现落点：Reputation/Discovery 的 `@EventListener`
+- 状态：✅ 已移除（S3 全部实现）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 1）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-19,"在前端编辑/删除内容、发表评论与回复，并看到友好的错误提示",E7,Should,3,S1,"Sprint 1","type:story,ctx:frontend,priority:should","## 用户故事
+
+作为用户，我可以在前端编辑/删除内容、发表评论与回复，并看到友好的错误提示
+
+## 归属
+
+- 史诗：E7
+- 限界上下文：`ctx:frontend`
+- 前置依赖：PB-12、PB-15
+- Sprint：S1｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`frontend/src/pages/*`
+- 状态：✅ 已验收（v0.2.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-20,"系统为我开立声誉账户（教师获得初始悬赏积分）",E3,Must,3,S2,"Sprint 2","type:story,ctx:reputation,priority:must","## 用户故事
+
+作为新用户，系统为我开立声誉账户（教师获得初始悬赏积分），以便参与激励体系
+
+## 归属
+
+- 史诗：E3
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-05
+- Sprint：S2｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`ReputationApiImplTest`、`ReputationEventHandlersTest`、`ReputationQueryServiceTest`、`ReputationReplayIdempotencyTest`
+
+## 规格与实现落点
+
+- 实现落点：`ReputationAccount.open`、`initialPoints`、`on(UserRegistered)`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",15
+PB-21,"回答被采纳时我获得 +15 声誉（自问自答不加分）并记入账本",E3,Must,5,S2,"Sprint 2","type:story,ctx:reputation,priority:must","## 用户故事
+
+作为回答者，回答被采纳时我获得 +15 声誉（自问自答不加分）并记入账本
+
+## 归属
+
+- 史诗：E3
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-10
+- Sprint：S2｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`AnswerAndVoteServiceTest`、`AnswerTest`、`ReputationApiImplTest`、`ReputationEventHandlersTest`
+
+## 规格与实现落点
+
+- 实现落点：`on(AnswerAccepted)`、`applyReputation`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",16
+PB-22,"被赞 +10、被踩 −2，改投/撤销按差值计算，且每日正向投票所得 ≤ 200",E3,Must,5,S2,"Sprint 2","type:story,ctx:reputation,priority:must","## 用户故事
+
+作为作者，被赞 +10、被踩 −2，改投/撤销按差值计算，且每日正向投票所得 ≤ 200
+
+## 归属
+
+- 史诗：E3
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-11
+- Sprint：S2｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`VoteAndCommentBoundaryTest`、`VoteAndCommentTest`
+
+## 规格与实现落点
+
+- 实现落点：`voteEffect/voteDelta/applyDailyCap`、`on(VoteCast)`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",17
+PB-23,"达成里程碑时自动获得徽章",E3,Should,3,S2,"Sprint 2","type:story,ctx:reputation,priority:should","## 用户故事
+
+作为用户，我在达成里程碑时自动获得徽章
+
+## 归属
+
+- 史诗：E3
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-21
+- Sprint：S2｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`BadgePolicyAndAcademicTermBoundaryTest`、`BadgeServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`BadgePolicy`、`BadgeService.grant`、其余事件处理
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-24,"为问题发起悬赏（10–500 分，1–14 天）并冻结积分",E4,Must,5,S2,"Sprint 2","type:story,ctx:reputation,priority:must","## 用户故事
+
+作为课程管理者，我可以为问题发起悬赏（10–500 分，1–14 天）并冻结积分
+
+## 归属
+
+- 史诗：E4
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-17、PB-20
+- Sprint：S2｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`BountyAndAccountTest`、`BountyLifecycleTest`、`BountyServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`Bounty.open`、`freezePoints`、`BountyService.open/latest`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",18
+PB-25,"问题采纳时我自动赢得悬赏；作为发起人，到期未采纳时积分自动退回",E4,Must,5,S2,"Sprint 2","type:story,ctx:reputation,priority:must","## 用户故事
+
+作为回答者，问题采纳时我自动赢得悬赏；作为发起人，到期未采纳时积分自动退回
+
+## 归属
+
+- 史诗：E4
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-24
+- Sprint：S2｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`BadgeCatalogTest`、`BadgePolicyAndAcademicTermBoundaryTest`、`BadgeServiceTest`、`BountyAndAccountTest`
+
+## 规格与实现落点
+
+- 实现落点：`award/close/isDue`、`settleOnAccept/expireDue`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",19
+PB-26,"查看周/月/学期/总排行榜",E3,Should,5,S2,"Sprint 2","type:story,ctx:reputation,priority:should","## 用户故事
+
+作为用户，我可以查看周/月/学期/总排行榜
+
+## 归属
+
+- 史诗：E3
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-21
+- Sprint：S2｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`LeaderboardServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`AcademicTerm`、`LeaderboardService`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-27,"查看他人声誉档案与徽章，并查看自己的积分与声誉流水",E3,Must,3,S2,"Sprint 2","type:story,ctx:reputation,priority:must","## 用户故事
+
+作为用户，我可以查看他人声誉档案与徽章，并查看自己的积分与声誉流水
+
+## 归属
+
+- 史诗：E3
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-20
+- Sprint：S2｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`ReputationApiImplTest`、`ReputationEventHandlersTest`、`ReputationQueryServiceTest`、`ReputationReplayIdempotencyTest`
+
+## 规格与实现落点
+
+- 实现落点：`ReputationQueryService`、`ReputationApiImpl`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-28,"查看每日对账结果",E3,Should,2,S2,"Sprint 2","type:story,ctx:reputation,priority:should","## 用户故事
+
+作为管理员，我可以查看每日对账结果，以便发现声誉异常（FF-8）
+
+## 归属
+
+- 史诗：E3
+- 限界上下文：`ctx:reputation`
+- 前置依赖：PB-20
+- Sprint：S2｜故事点：2
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`ReconciliationServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`ReconciliationService`
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 2）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-29,"在对话框中发起悬赏并看到倒计时；作为用户，我有个人声誉主页",E7,Should,3,S2,"Sprint 2","type:story,ctx:frontend,priority:should","## 用户故事
+
+作为教师，我可以在对话框中发起悬赏并看到倒计时；作为用户，我有个人声誉主页
+
+## 归属
+
+- 史诗：E7
+- 限界上下文：`ctx:frontend`
+- 前置依赖：PB-24、PB-27
+- Sprint：S2｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：前端悬赏对话框、声誉页
+- 状态：🟡 已完成待验收（v0.3.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-30,"Reputation 应用层单元测试（手写 Fake）",E6,Must,3,S2,"Sprint 2","type:story,ctx:infra,priority:must","## 用户故事
+
+作为团队，我们需要 Reputation 应用层单元测试（手写 Fake），以便安全重构
+
+## 归属
+
+- 史诗：E6
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-20 ~ PB-28
+- Sprint：S2｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`ReputationApiImplTest`、`ReputationEventHandlersTest`、`ReputationQueryServiceTest`、`ReputationReplayIdempotencyTest`
+
+## 规格与实现落点
+
+- 实现落点：`co-reputation-application/src/test`
+- 状态：✅ 已完成（55 个用例）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-31,"用中英文关键词搜索并按标签/未回答/悬赏筛选、按相关度/最新/活跃/热度排序",E5,Must,5,S3,"Sprint 3","type:story,ctx:discovery,priority:must","## 用户故事
+
+作为用户，我可以用中英文关键词搜索并按标签/未回答/悬赏筛选、按相关度/最新/活跃/热度排序
+
+## 归属
+
+- 史诗：E5
+- 限界上下文：`ctx:discovery`
+- 前置依赖：PB-32
+- Sprint：S3｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`DiscoveryDomainTest`、`DiscoveryQueryServiceTest`、`DiscoveryQueryServiceViewMappingTest`、`DiscoverySearchAndNotificationBoundaryTest`
+
+## 规格与实现落点
+
+- 实现落点：`SearchQuery.terms`、`DiscoveryQueryService.search`
+- 状态：🟡 已完成待验收（v0.9.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",20
+PB-32,"搜索投影随问答与悬赏事件幂等更新",E5,Must,5,S3,"Sprint 3","type:story,ctx:discovery,priority:must","## 用户故事
+
+作为系统，搜索投影随问答与悬赏事件幂等更新，以便搜索结果及时准确
+
+## 归属
+
+- 史诗：E5
+- 限界上下文：`ctx:discovery`
+- 前置依赖：PB-06 ~ PB-13
+- Sprint：S3｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`SearchIndexProjectorDedupTest`、`SearchIndexProjectorTest`
+
+## 规格与实现落点
+
+- 实现落点：`SearchIndexProjector`
+- 状态：🟡 已完成待验收（v0.9.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",21
+PB-33,"问题详情页看到相关问题推荐",E5,Should,3,S3,"Sprint 3","type:story,ctx:discovery,priority:should","## 用户故事
+
+作为读者，我在问题详情页看到相关问题推荐
+
+## 归属
+
+- 史诗：E5
+- 限界上下文：`ctx:discovery`
+- 前置依赖：PB-31
+- Sprint：S3｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`QuestionCommandServiceTest`、`QuestionControllerTest`、`QuestionQueryServiceTest`、`QuestionTest`
+
+## 规格与实现落点
+
+- 实现落点：`RelatedQuestionPolicy`、`related`
+- 状态：🟡 已完成待验收（v0.9.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-34,"收到新回答、被采纳、被认证、赢得悬赏、获得徽章等通知",E5,Must,5,S3,"Sprint 3","type:story,ctx:discovery,priority:must","## 用户故事
+
+作为用户，我会收到新回答、被采纳、被认证、赢得悬赏、获得徽章等通知
+
+## 归属
+
+- 史诗：E5
+- 限界上下文：`ctx:discovery`
+- 前置依赖：PB-09、PB-10、PB-21
+- Sprint：S3｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`NotificationProjectorBoundaryAndOwnershipTest`、`NotificationProjectorTest`、`NotificationServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`Notification.create`、`NotificationProjector`
+- 状态：🟡 已完成待验收（v0.9.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",22
+PB-35,"评论中被 @ 时我会收到提醒（每条最多 5 人）",E5,Should,3,S3,"Sprint 3","type:story,ctx:discovery,priority:should","## 用户故事
+
+作为用户，评论中被 @ 时我会收到提醒（每条最多 5 人）
+
+## 归属
+
+- 史诗：E5
+- 限界上下文：`ctx:discovery`
+- 前置依赖：PB-15
+- Sprint：S3｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`CommentServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`MentionParser`、`on(CommentPosted)`
+- 状态：🟡 已完成待验收（v0.9.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",23
+PB-36,"查看通知列表、未读数，并标记单条或全部已读",E5,Must,3,S3,"Sprint 3","type:story,ctx:discovery,priority:must","## 用户故事
+
+作为用户，我可以查看通知列表、未读数，并标记单条或全部已读
+
+## 归属
+
+- 史诗：E5
+- 限界上下文：`ctx:discovery`
+- 前置依赖：PB-34
+- Sprint：S3｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`NotificationProjectorBoundaryAndOwnershipTest`、`NotificationProjectorTest`、`NotificationServiceTest`
+
+## 规格与实现落点
+
+- 实现落点：`NotificationService`、`markRead`
+- 状态：🟡 已完成待验收（v0.9.0）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-37,"端到端集成测试全绿且领域覆盖率 ≥ 70%",E6,Must,3,S3,"Sprint 3","type:story,ctx:infra,priority:must","## 用户故事
+
+作为团队，端到端集成测试全绿且领域覆盖率 ≥ 70%，以便发布候选版本
+
+## 归属
+
+- 史诗：E6
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-32、PB-34
+- Sprint：S3｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`CampusOverflowFlowIT`、JaCoCo
+- 状态：🟡 待本地 Docker 验证
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",26
+PB-38,"demo profile 能加载完整演示数据",E6,Should,1,S3,"Sprint 3","type:story,ctx:infra,priority:should","## 用户故事
+
+作为演示者，demo profile 能加载完整演示数据
+
+## 归属
+
+- 史诗：E6
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-24
+- Sprint：S3｜故事点：1
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`DemoDataSeeder`
+- 状态：🟡 待验证
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 1）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-39,"Discovery 应用层单元测试（验证投影幂等）",E6,Must,3,S3,"Sprint 3","type:story,ctx:infra,priority:must","## 用户故事
+
+作为团队，我们需要 Discovery 应用层单元测试（验证投影幂等）
+
+## 归属
+
+- 史诗：E6
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-32
+- Sprint：S3｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`DiscoveryDomainTest`、`DiscoveryQueryServiceTest`、`DiscoveryQueryServiceViewMappingTest`、`DiscoverySearchAndNotificationBoundaryTest`
+
+## 规格与实现落点
+
+- 实现落点：`co-discovery-application/src/test`
+- 状态：✅ 已完成（32 个用例）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-40,"禁用违规账号并使其立即下线（ADR-003）",E1,Should,5,S4,"Sprint 4","type:story,ctx:identity,priority:should","## 用户故事
+
+作为管理员，我可以禁用违规账号并使其立即下线（ADR-003）
+
+## 归属
+
+- 史诗：E1
+- 限界上下文：`ctx:identity`
+- 前置依赖：PB-05
+- Sprint：S4｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`UserQueryServiceTest`、`UserRegistrationServiceTest`、`UserTest`
+
+## 规格与实现落点
+
+- 实现落点：`User.disable` + 服务/接口/会话清理
+- 状态：⬜ 未开始
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-41,"查看和修改个人资料（学院、班级）",E1,Could,3,S4,"Sprint 4","type:story,ctx:identity,priority:could","## 用户故事
+
+作为用户，我可以查看和修改个人资料（学院、班级）
+
+## 归属
+
+- 史诗：E1
+- 限界上下文：`ctx:identity`
+- 前置依赖：PB-05
+- Sprint：S4｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`IdentityApiImplTest`
+
+## 规格与实现落点
+
+- 实现落点：Identity 扩展
+- 状态：⬜ 未开始
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-42,"获得更好的前端体验：分页/骨架屏/错误重试、Markdown 实时预览",E7,Should,3,S4,"Sprint 4","type:story,ctx:frontend,priority:should","## 用户故事
+
+作为用户，我获得更好的前端体验：分页/骨架屏/错误重试、Markdown 实时预览
+
+## 归属
+
+- 史诗：E7
+- 限界上下文：`ctx:frontend`
+- 前置依赖：PB-19
+- Sprint：S4｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`frontend/`
+- 状态：⬜ 未开始（部分已完成）
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-43,"通知红点实时刷新（SSE 替代 30 秒轮询）",E7,Could,5,S4,"Sprint 4","type:story,ctx:frontend,priority:could","## 用户故事
+
+作为用户，通知红点实时刷新（SSE 替代 30 秒轮询）
+
+## 归属
+
+- 史诗：E7
+- 限界上下文：`ctx:frontend`
+- 前置依赖：PB-36
+- Sprint：S4｜故事点：5
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：前端 + 新接口
+- 状态：⬜ 未开始
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 5）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-44,"在 Grafana 看到发件箱积压、死信、对账不一致等指标",E6,Should,2,S4,"Sprint 4","type:story,ctx:infra,priority:should","## 用户故事
+
+作为运维者，我可以在 Grafana 看到发件箱积压、死信、对账不一致等指标
+
+## 归属
+
+- 史诗：E6
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-04
+- Sprint：S4｜故事点：2
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：`deploy/prometheus.yml`、Grafana
+- 状态：🟡 配置已在，面板待补
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 2）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-45,"问题列表做压测并验证缓存命中",E6,Could,3,S4,"Sprint 4","type:story,ctx:infra,priority:could","## 用户故事
+
+作为团队，我们对问题列表做压测并验证缓存命中
+
+## 归属
+
+- 史诗：E6
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-07
+- Sprint：S4｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：压测脚本
+- 状态：⬜ 未开始
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-46,"用 docker compose 一键部署 v1.0 并阅读 Release Notes",E6,Must,2,S4,"Sprint 4","type:story,ctx:infra,priority:must","## 用户故事
+
+作为干系人，我可以用 docker compose 一键部署 v1.0 并阅读 Release Notes
+
+## 归属
+
+- 史诗：E6
+- 限界上下文：`ctx:infra`
+- 前置依赖：PB-02
+- Sprint：S4｜故事点：2
+
+## 验收标准（Given / When / Then）
+
+- [ ] 快乐路径：Given ____ When ____ Then ____
+- [ ] 边界路径：Given ____ When ____ Then ____（边界值见 `docs/错误码.md`）
+- [ ] 异常路径：Given ____ When ____ Then ____ 返回 `<HTTP 状态>` `<错误码>`
+
+## 规格与实现落点
+
+- 实现落点：GitHub Release、镜像
+- 状态：🟡 `deploy/` 已就绪，待实测
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 2）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",27
+PB-47,"有管理页面：认证学生、创建教职工账号",E1,Could,3,S4,"Sprint 4","type:story,ctx:identity,priority:could","## 用户故事
+
+作为管理员，我有管理页面：认证学生、创建教职工账号
+
+## 归属
+
+- 史诗：E1
+- 限界上下文：`ctx:identity`
+- 前置依赖：PB-05
+- Sprint：S4｜故事点：3
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`AdminUserServiceTest`、`BCryptPasswordHasherTest`、`CourseServiceTest`、`CourseTest`
+
+## 规格与实现落点
+
+- 实现落点：前端 + 已有接口
+- 状态：⬜ 未开始
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 3）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
+PB-48,"审批学生的选课申请",E1,Won't,8,—,"Sprint ","type:story,ctx:identity,priority:won't","## 用户故事
+
+作为教师，我可以审批学生的选课申请
+
+## 归属
+
+- 史诗：E1
+- 限界上下文：`ctx:identity`
+- 前置依赖：—
+- Sprint：—｜故事点：8
+
+## 验收标准（Given / When / Then）
+
+- 规格来源（测试即规格）：`IdentityApiImplTest`
+
+## 规格与实现落点
+
+- 实现落点：Identity 扩展（留作后续）
+- 状态：⛔ 本期不做
+
+## DoR 自检（进 Sprint 前逐条勾选）
+
+- [ ] 价值明确，关联史诗与限界上下文
+- [ ] 有可验证的验收标准（含边界值与错误码）
+- [ ] 故事点 ≤ 8（当前 8）
+- [ ] 依赖已识别（上游事件字段已确认）
+- [ ] 已指派负责人
+",
