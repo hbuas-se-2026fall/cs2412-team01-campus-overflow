@@ -29,11 +29,11 @@
 
 | 日期 | 昨日完成 | 今日计划 | 阻碍 / 处理 |
 | :-- | :-- | :-- | :-- |
-| 11-20 | S2 评审与回顾、S3 计划会 | 认领 PB-31 ~ PB-39；建“移除行走骨架”专项 Issue | — |
-| 11-24 | 领域策略（`SearchQuery` / `RelatedQuestionPolicy` / `MentionParser`） | 搜索与通知投影器 | — |
-| 11-27 | 两个投影器接线完成 | 前端搜索与通知页联调 | — |
-| 12-01 | 端到端测试与 demo 数据 | `CampusOverflowFlowIT` 跑绿 | 需本机 Docker（Testcontainers 拉 mysql:8.0.39 / redis:7-alpine） |
-| 12-03 | 评审彩排与 RC 发布 | 打 `v0.9.0` | — |
+| 11-20 | 待填 | 认领 PB-31 ~ PB-39；建“移除行走骨架”专项 Issue | 待填 |
+| 11-24 | 待填 | 搜索与通知投影器 | 待填 |
+| 11-27 | 待填 | 前端搜索与通知页联调 | 待填 |
+| 12-01 | 待填 | `CampusOverflowFlowIT` 跑绿 | 待填 |
+| 12-03 | 待填 | 打 `v0.9.0` | 待填 |
 
 ## 4. 评审：验收清单（指导书 6.5.3）
 
@@ -56,12 +56,12 @@
 | 速度 | 待定（S2 为 42） | 本节 |
 | 合并 PR 数 / 平均周转 | 进行中 | GitHub API |
 | CI 红灯次数 / 平均恢复 | 目标 < 5 次 / < 24 h（S2 为 28 次） | Actions |
-| 端到端测试 | `CampusOverflowFlowIT`：待运行（需 Docker） | `mvn verify` |
-| 领域覆盖率 | 目标 ≥ 70%（`co-discovery-domain` 当前已补至 100%） | JaCoCo |
+| 端到端测试 | `CampusOverflowFlowIT`：本地 Docker 29 下 4/4 通过、`mvn verify` 497 例全绿（#67）；CI 仍带 `-DskipITs`，待 T3-09 开启 | `mvn verify` |
+| 领域覆盖率 | 要求 ≥ 70%，门禁已设 0.75（#62）（`co-discovery-domain` 当前已补至 100%） | JaCoCo |
 | 燃尽图 | 见 [burndown/sprint-3.csv](burndown/sprint-3.csv)（SM 每站会后更新） | 本目录 |
 | 版本标签 | `v0.9.0` —— 待创建 | `git tag` |
 
-> **说明**：Discovery 的 32 个方法其实现提交发生在 10-27（`6c1f74a`），早于本 Sprint 窗口。
+> **说明**：Discovery 的 31 个方法其实现提交发生在 10-27（`6c1f74a`），早于本 Sprint 窗口。
 > 本 Sprint 的真实工作是**端到端验证、幂等测试与行走骨架清理**，评审时按此口径解释，
 > 不要把它描述成“两周写完 Discovery”。
 
@@ -69,12 +69,13 @@
 
 | 维度 | 内容 |
 | :-- | :-- |
-| 做得好的 | 107 个 `TODO(Sx)` 全部清零；ArchUnit 全绿；投影与通知的幂等键设计一致（`processed_event` / `(source_event_id, recipient_id)`） |
-| 待改进 | 前端联调滞后于后端接口产出；本机 Docker/WSL 兼容性问题导致端到端演示无法录制；`deploy/` 未实测 |
-| 改进行动 | ① 以 Swagger 截图 + 覆盖率报告 + CI 绿作为验收凭证；② 前后端联调与 `docker compose` 一键部署作为 S4 首要任务；③ 发布 `v1.0.0` 并更新 README（跟踪 Issue 待建） |
+| 做得好的 | 待 Sprint 结束后填写 |
+| 待改进 | 待 Sprint 结束后填写 |
+| 改进行动 | 待 Sprint 结束后填写 |
 
 ## 7. 证据链接
 
 - 验收标准：指导书 6.5.3｜实现要点：指导书 6.5.2
 - 相关提交：`6c1f74a`（Discovery 领域层 + 应用层 31 方法）、`627e056`（合并）
+- 本 Sprint 内 PR：#64（T3-04 搜索投影只统计问题本身的投票，PB-32）、#67（Testcontainers 升级，端到端测试在新版 Docker 下可运行，PB-37）
 - 相关 ADR：[005-中文全文检索](../adr/005-中文全文检索.md)
