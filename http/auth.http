@@ -1,0 +1,82 @@
+### CampusOverflow 认证冒烟脚本（IntelliJ HTTP Client）
+### 用法：IDEA 里打开本文件，点每个请求左侧的 ▶ 按顺序跑；也可以点顶部「Run All」。
+### 前置：后端已启动（dev profile），deploy/docker-compose.yml 的 mysql + redis 已起。
+
+@base = http://localhost:8080
+@username = 2023000001
+@password = Campus@123456
+@courseId = 1
+
+### 0. 拿 CSRF token（必须先跑；之后每次登录/注册 token 会轮换，需要重跑）
+GET {{base}}/api/v1/auth/csrf
+
+> {%
+    // XSRF-TOKEN 在 Set-Cookie 里，前端也是从 Cookie 读出来再放到请求头
+    const raw = response.headers.valueOf("Set-Cookie") || "";
+    const m = /XSRF-TOKEN=([^;]+)/.exec(raw);
+    if (m) {
+        client.global.set("xsrf", decodeURIComponent(m[1]));
+    } else {
+        client.log("没拿到 XSRF-TOKEN，检查 CSRF 过滤器是否生效");
+    }
+%}
+
+### 1. 注册学生（201；重复跑会返回 409 或 422，换个 @username 即可）
+POST {{base}}/api/v1/auth/register
+Content-Type: application/json
+X-XSRF-TOKEN: {{xsrf}}
+
+{
+  "username": "{{username}}",
+  "displayName": "测试同学",
+  "email": "test@campus.edu",
+  "password": "{{password}}",
+  "college": "计算机工程学院",
+  "className": "计科2301"
+}
+
+### 2. 重新取 CSRF（注册后会话已切换，token 变了）
+GET {{base}}/api/v1/auth/csrf
+
+> {%
+    const raw = response.headers.valueOf("Set-Cookie") || "";
+    const m = /XSRF-TOKEN=([^;]+)/.exec(raw);
+    if (m) client.global.set("xsrf", decodeURIComponent(m[1]));
+%}
+
+### 3. 登录（200，会话 Cookie 由客户端自动保存）
+POST {{base}}/api/v1/auth/login
+Content-Type: application/json
+X-XSRF-TOKEN: {{xsrf}}
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+### 4. 再取一次 CSRF（登录同样会轮换 token，不重跑后面的写请求会 403）
+GET {{base}}/api/v1/auth/csrf
+
+> {%
+    const raw = response.headers.valueOf("Set-Cookie") || "";
+    const m = /XSRF-TOKEN=([^;]+)/.exec(raw);
+    if (m) client.global.set("xsrf", decodeURIComponent(m[1]));
+%}
+
+### 5. 当前用户（200；能看到角色与认证状态）
+GET {{base}}/api/v1/auth/me
+
+### 6. 课程列表（未登录也能看，登录后会带上我的课程角色）
+GET {{base}}/api/v1/courses
+
+### 7. 加入课程（204；courseId 换成课程列表里的真实 id）
+POST {{base}}/api/v1/courses/{{courseId}}/join
+X-XSRF-TOKEN: {{xsrf}}
+
+### 8. 我加入的课程（200）
+GET {{base}}/api/v1/courses/mine
+
+### 故障排查
+### 403 AUTH-403-CSRF  → 没带 X-XSRF-TOKEN，或登录后忘了重跑第 4 步
+### 401               → 会话过期（30 分钟），重跑第 3 步
+### 422 QA-1001       → 标题长度不合法（问题接口，不是本脚本）
