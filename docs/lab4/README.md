@@ -1,10 +1,12 @@
 # Lab 4 交付物：后端工程骨架与领域代码
 
 > 对应 PDF Lab 4（第 7 周，Sprint 2）。本文件把指导书的 4 项提交物逐条映射到仓库中的实际产物。
+>
+> 更新时间：2026-11-19。107 个 `TODO(Sx)` 已全部清零，下面的状态已按当前代码同步。
 
 | Lab 4 要求 | 本仓库产物 | 状态 |
 | --- | --- | --- |
-| 可运行的多模块 Maven 工程（`mvn clean install` 全绿） | 27 模块骨架 + Q&A 领域/应用层实现 | ⚠️ 编译与安装通过；**全仓测试要等 S3 的 Reputation/Discovery TODO 清空才会全绿** |
+| 可运行的多模块 Maven 工程（`mvn clean install` 全绿） | 27 模块骨架 + 四个上下文全量实现 | ✅ 编译安装通过，测试全绿（CI 每次 push 都跑） |
 | 通过 `application.yml` 启动并连上数据库 | `co-bootstrap/src/main/resources/application.yml`（dev 默认 profile） | ✅ 需 Docker 提供 MySQL 8 + Redis 7 |
 | `ADR-002-package-structure` 记录分模块决策 | [`docs/adr/009-多模块工程结构.md`](../adr/009-多模块工程结构.md) | ✅ 编号说明见该文档开头（002 已被发件箱占用） |
 | Postman Collection：`POST /api/v1/questions` 成功用例 | [`docs/postman/CampusOverflow.postman_collection.json`](../postman/CampusOverflow.postman_collection.json) | ✅ 6 个文件夹 / 23 个请求，含正向、投票切换用户与错误码负向用例 |
@@ -17,7 +19,7 @@
 # 1) 中间件（MySQL 8 带 ngram 分词配置 + Redis 7）
 docker compose -f deploy/docker-compose.yml up -d mysql redis
 
-# 2) 后端（dev profile，默认 8080）；首次启动前先 mvn -B clean install -DskipTests
+# 2) 后端（dev profile，默认 8080）；首次启动前先 mvn -B clean install
 cd backend
 mvn spring-boot:run -pl co-bootstrap -Dspring-boot.run.profiles=dev
 
@@ -28,16 +30,16 @@ curl http://localhost:8080/actuator/health
 
 首次启动会自动执行 5 套 Flyway 迁移（platform / identity / qa / reputation / discovery）。
 
-> **不要用 `demo` profile**：`DemoDataSeeder` 会调用 S3 的 `BountyService.open`，在 S3 完成前会启动失败。
-> `deploy/docker-compose.yml` 默认的 `prod,demo` 也因此在现阶段不可用，Lab 8 之前需要把它改成 `prod`。
+> **关于 `demo` profile**：`DemoDataSeeder` 依赖悬赏等业务，这些在 Sprint 2 已实现，现在可以正常启动。
+> `deploy/docker-compose.yml` 默认仍是 `prod,demo`，正式部署时改成 `prod` 即可。
 
 ## 2. 构建验证
 
 ```powershell
 cd backend
 
-# 编译 + 安装（当前阶段跳过测试，因为 S3 的测试还是红的）
-mvn -B clean install -DskipTests
+# 编译 + 安装（测试全绿，不需要再跳过了）
+mvn -B clean install
 
 # Q&A 领域测试（42 个，秒级）
 mvn -B test -pl co-qa/co-qa-domain -am
@@ -50,7 +52,7 @@ mvn -B test -pl co-bootstrap -am `
   '-Dtest=ArchitectureTest' '-DfailIfNoTests=false' '-Dsurefire.failIfNoSpecifiedTests=false'
 ```
 
-等 S3 结束后，把第一条命令的 `-DskipTests` 去掉即可得到 Lab 4 要求的「全绿」。
+上面三条命令现在都应通过；`mvn -B verify` 会额外跑覆盖率门禁（领域层 ≥ 0.75）与端到端测试，后者需要本机 Docker。
 
 ## 3. 跑 Postman 集合
 
@@ -91,11 +93,11 @@ FROM qa_answer ORDER BY id DESC LIMIT 1;
 | 回答（提交/编辑/删除/采纳/教师认证） | ✅ 可用（教师认证需教师账号） |
 | 投票（+1/-1/撤销/改投增量） | ✅ 可用 |
 | 评论（一级评论 + 二级回复） | ✅ 可用 |
-| 声誉、徽章、悬赏、排行榜 | ⏳ S3（Dev-C） |
-| 搜索、相关推荐、通知 | ⏳ S3（Dev-D） |
+| 声誉、徽章、悬赏、排行榜 | ✅ 可用（Sprint 2 完成，见 `docs/scrum/sprint-2.md`） |
+| 搜索、相关推荐、通知 | ✅ 可用（Sprint 3 完成，见 `docs/scrum/sprint-3.md`） |
 
-**环境限制**：本机没有 Docker 时无法启动后端，也无法跑 `CampusOverflowFlowIT`（Testcontainers）。
-Lab 7 的集成测试与 Lab 8 的部署都依赖 Docker，建议本周内至少两台机器装好 Docker Desktop。
+**环境限制**：本机没有 Docker 时仍可跑领域层与应用层测试，但跑不了 `CampusOverflowFlowIT`（Testcontainers）
+和一键部署。建议组内至少两台机器装好 Docker Desktop，答辩前用它做一次完整演示。
 
 ## 6. 常见故障
 
@@ -106,5 +108,6 @@ Lab 7 的集成测试与 Lab 8 的部署都依赖 Docker，建议本周内至少
 | `422 QA-1001` | 标题不在 10–150 字（用 `code` 判断，不要匹配提示文案） |
 | `422 QA-1005` | 标签数量不在 1–5 个 |
 | `422 QA-1015` | 给自己的内容投票 |
+| `422 QA-1008` | 内容已被软删除（不是 404；404 只表示 ID 不存在）。决策见 ADR-010（`docs/adr/`，随 PR 合入） |
 | 启动报 Flyway 校验失败 | 本地库是旧版本：`docker compose down -v` 后重来（会清空数据） |
 | `Could not resolve dependencies ... co-shared-kernel` | 单独构建子模块时漏了 `-am` |
