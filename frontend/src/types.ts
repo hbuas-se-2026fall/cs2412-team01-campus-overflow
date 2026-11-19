@@ -39,6 +39,20 @@ export interface QuestionDetail {
 }
 
 export interface SearchResult extends QuestionSummary { bountyOpen: boolean }
+
+/** 对应后端 BountyView。status 取 BountyStatus 枚举名：OPEN / AWARDED / EXPIRED。 */
+export interface BountyView {
+  id: number;
+  questionId: number;
+  sponsorId: number;
+  sponsorName: string | null;
+  points: number;
+  status: 'OPEN' | 'AWARDED' | 'EXPIRED';
+  createdAt: string;
+  expiresAt: string;
+  winnerId: number | null;
+  answerId: number | null;
+}
 export interface LeaderboardEntry { rank: number; userId: number; displayName: string; verified: boolean; score: number }
 export interface Notification { id: number; type: string; title: string; link: string; read: boolean; createdAt: string }
 export interface ReputationProfile {
