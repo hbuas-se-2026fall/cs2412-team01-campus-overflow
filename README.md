@@ -69,7 +69,8 @@ cd ../frontend && npm install && npm run dev      # http://localhost:5173
 | 领域模型、上下文映射、事件目录 | [docs/ddd/](docs/ddd/) |
 | 架构决策（10 条 ADR） | [docs/adr/](docs/adr/README.md) |
 | 错误码与 HTTP 状态映射 | [docs/错误码.md](docs/错误码.md) |
-| 发布说明 | [docs/release/](docs/release/) |
+| 发布说明 | [docs/release/](docs/release/)（v0.1.0 ~ v0.3.0，索引见 [README](docs/release/README.md)） |
+| 版本变更日志 | [CHANGELOG.md](CHANGELOG.md) |
 | 部署与运维 | [deploy/README.md](deploy/README.md) |
 | 起始代码的 107 个 TODO 清单（历史存档） | [docs/学生任务清单.md](docs/学生任务清单.md) |
 
