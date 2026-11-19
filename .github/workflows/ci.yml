@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ "main", "develop" ]
 
+# 同一 PR / 分支有新推送时取消旧的运行，节省 Actions 额度
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   # 质量门禁覆盖全部四个限界上下文的领域层与应用层。
   # 原先这份清单是 Sprint 1 的遗留，只有 shared-kernel / identity / qa 三个上下文；
@@ -18,6 +23,7 @@ jobs:
   backend:
     name: 后端构建与验证
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,6 +50,7 @@ jobs:
   frontend:
     name: 前端构建
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
