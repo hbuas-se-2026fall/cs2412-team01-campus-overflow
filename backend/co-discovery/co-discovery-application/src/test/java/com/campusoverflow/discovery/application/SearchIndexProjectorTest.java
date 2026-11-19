@@ -91,9 +91,16 @@ class SearchIndexProjectorTest {
     @DisplayName("投票：用 newValue-oldValue 作增量，改投与撤销都能正确表达")
     void voteUsesDifferenceOfValues() {
         projector.on(new VoteCastEvent("e7", T, "QUESTION", 11L, 7L, 3L, 11L, 1, -1));
+
+        assertThat(index.scoreDeltas).containsExactly("11:-2");
+    }
+
+    @Test
+    @DisplayName("投票：回答上的票不影响问题得分")
+    void answerVoteIgnored() {
         projector.on(new VoteCastEvent("e8", T, "ANSWER", 5L, 9L, 4L, 11L, 0, 1));
 
-        assertThat(index.scoreDeltas).containsExactly("11:-2", "11:1");
+        assertThat(index.scoreDeltas).isEmpty();
     }
 
     @Test
