@@ -1,6 +1,6 @@
 import type {
-  Course, LeaderboardEntry, Me, Notification, Page, QuestionDetail, QuestionSummary, ReputationProfile,
-  SearchResult,
+  BountyView, Course, LeaderboardEntry, Me, Notification, Page, QuestionDetail, QuestionSummary,
+  ReputationProfile, SearchResult,
 } from './types';
 import { textForCode } from './errors';
 
@@ -134,6 +134,9 @@ export const api = {
   reputation: (userId: number) => get<ReputationProfile>(`/v1/users/${userId}/reputation`),
   bounty: (questionId: number, points: number, days: number) =>
     request<{ id: number }>('POST', `/v1/questions/${questionId}/bounty`, { points, days }),
+  // 无悬赏时后端返回 204，request 会给出 undefined
+  bountyStatus: (questionId: number) =>
+    get<BountyView | undefined>(`/v1/questions/${questionId}/bounty`),
 
   notifications: () => get<Page<Notification>>('/v1/notifications'),
   unreadCount: () => get<{ count: number }>('/v1/notifications/unread-count'),

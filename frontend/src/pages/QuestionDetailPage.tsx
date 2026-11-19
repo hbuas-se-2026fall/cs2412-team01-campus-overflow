@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, errorMessage } from '../api';
 import { useAuth } from '../auth';
-import type { Answer, Comment, Me, QuestionDetail } from '../types';
+import type { Answer, BountyView, Comment, Me, QuestionDetail } from '../types';
 
 export function QuestionDetailPage() {
   const { id } = useParams();
@@ -14,9 +14,13 @@ export function QuestionDetailPage() {
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [bounty, setBounty] = useState<BountyView | undefined>();
+  const [bountyDialogOpen, setBountyDialogOpen] = useState(false);
 
   const load = useCallback(() => {
     api.question(questionId).then(setQ).catch((e) => setError(errorMessage(e, '问题加载失败')));
+    api.bountyStatus(questionId).then(setBounty).catch(() => setBounty(undefined));
+
   }, [questionId]);
 
   useEffect(() => {
@@ -62,6 +66,7 @@ export function QuestionDetailPage() {
   if (!q) return <p className="muted">{error || '加载中…'}</p>;
 
   const canManage = q.permissions.canManage;
+  const activeBounty = bounty?.status === 'OPEN' ? bounty : undefined;
 
   const removeQuestion = () => {
     if (!window.confirm('删除后问题将从列表和搜索中消失，且无法恢复。确定删除？')) return;
@@ -92,6 +97,7 @@ export function QuestionDetailPage() {
             {/* 正文由后端渲染并经 commonmark + OWASP Sanitizer 双重净化 */}
             <div dangerouslySetInnerHTML={{ __html: q.bodyHtml }} />
             <div className="tagrow">{q.tags.map((t) => <span key={t} className="tag">{t}</span>)}</div>
+            {activeBounty && <BountyBanner bounty={activeBounty} />}
             <CommentList comments={q.comments} targetType="QUESTION" targetId={q.id} me={me}
                          onCreated={(c) => appendComment('QUESTION', q.id, c)} />
             {(q.permissions.canEdit || q.permissions.canDelete) && (
@@ -105,11 +111,12 @@ export function QuestionDetailPage() {
               </div>
             )}
             {canManage && (
-              <button className="link" onClick={() => {
-                const points = Number(prompt('悬赏积分（10–500）', '50'));
-                if (points) act(() => api.bounty(q.id, points, 7), '悬赏已发起');
-              }}>发起悬赏
-              </button>
+              activeBounty ? (
+                <p className="muted">该问题已有进行中的悬赏（{activeBounty.points} 积分），结算后可再次发起。</p>
+              ) : (
+                <button className="link" onClick={() => setBountyDialogOpen(true)}>发起悬赏</button>
+              )
+
             )}
           </div>
         </div>
@@ -171,8 +178,129 @@ export function QuestionDetailPage() {
           {related.length === 0 && <li className="muted">暂无</li>}
         </ul>
       </aside>
+
+      {bountyDialogOpen && (
+        <BountyDialog
+          questionId={questionId}
+          onClose={() => setBountyDialogOpen(false)}
+          onCreated={() => { setBountyDialogOpen(false); load(); }}
+        />
+      )}
     </div>
   );
+}
+
+/** 每秒刷新一次的倒计时，只在 OPEN 悬赏挂载期间运行，避免无谓的定时器。 */
+function BountyBanner({ bounty }: { bounty: BountyView }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  return (
+    <p className="bounty-banner">
+      <span className="bounty-tag">悬赏 {bounty.points} 积分</span>
+      <span className="muted">· {bounty.sponsorName ?? '匿名用户'} 发起 · 截止 {new Date(bounty.expiresAt).toLocaleString('zh-CN')}</span>
+      <span className={bountyCountdownClass(bounty.expiresAt, now)}>{formatCountdown(bounty.expiresAt, now)}</span>
+    </p>
+  );
+}
+
+function bountyCountdownClass(expiresAt: string, now: number): string {
+  return new Date(expiresAt).getTime() - now <= 0 ? 'bounty-expired' : 'bounty-countdown';
+}
+
+/** 把剩余毫秒数格式化成「X 天 Y 小时 Z 分」；已到期返回「已到期，等待结算」。 */
+function formatCountdown(expiresAt: string, now: number): string {
+  const remaining = new Date(expiresAt).getTime() - now;
+  if (remaining <= 0) return '已到期，等待结算';
+  const days = Math.floor(remaining / 86_400_000);
+  const hours = Math.floor((remaining % 86_400_000) / 3_600_000);
+  const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+  const parts: string[] = [];
+  if (days) parts.push(`${days} 天`);
+  if (hours) parts.push(`${hours} 小时`);
+  parts.push(`${minutes} 分`);
+  return `剩余 ${parts.join(' ')}`;
+}
+
+/** 悬赏发起对话框：前端先按后端 BountyRequest 的约束校验，避免无谓请求；错误码转成可读提示。 */
+function BountyDialog({ questionId, onClose, onCreated }: {
+  questionId: number;
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [points, setPoints] = useState('50');
+  const [days, setDays] = useState('7');
+  const [submitting, setSubmitting] = useState(false);
+  const [validation, setValidation] = useState('');
+  const [submitError, setSubmitError] = useState('');
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !submitting) onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [submitting, onClose]);
+
+  const submit = () => {
+    const p = Number(points);
+    const d = Number(days);
+    if (!Number.isInteger(p) || p < 10 || p > 500) {
+      setValidation('积分需为 10–500 之间的整数');
+      return;
+    }
+    if (!Number.isInteger(d) || d < 1 || d > 14) {
+      setValidation('天数需为 1–14 之间的整数');
+      return;
+    }
+    setValidation('');
+    setSubmitError('');
+    setSubmitting(true);
+    api.bounty(questionId, p, d)
+      .then(onCreated)
+      .catch((e) => setSubmitError(bountyErrorText(e)))
+      .finally(() => setSubmitting(false));
+  };
+
+  return (
+    <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget && !submitting) onClose(); }}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="bounty-dialog-title">
+        <h3 id="bounty-dialog-title">发起悬赏</h3>
+        <p className="muted">悬赏积分将从你的可用积分中冻结，回答被采纳后转给回答者；到期未采纳则自动退回。</p>
+        <div className="form-page">
+          <label>
+            悬赏积分（10–500）
+            <input type="number" min={10} max={500} step={1} value={points} autoFocus
+                   onChange={(e) => setPoints(e.target.value)} />
+          </label>
+          <label>
+            有效天数（1–14）
+            <input type="number" min={1} max={14} step={1} value={days}
+                   onChange={(e) => setDays(e.target.value)} />
+          </label>
+          {validation && <p className="error">{validation}</p>}
+          {submitError && <p className="error">{submitError}</p>}
+          <div className="actions">
+            <button className="primary" disabled={submitting} onClick={submit}>
+              {submitting ? '提交中…' : '确认发起'}
+            </button>
+            <button disabled={submitting} onClick={onClose}>取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** 后端 Problem Details 的业务码 → 用户可读文案，未收录的码回退到后端 detail。 */
+function bountyErrorText(e: { code?: string; message: string }): string {
+  switch (e.code) {
+    case 'REP-2002': return '该问题已有进行中的悬赏，请等待结算后重试';
+    case 'REP-1002': return '可用积分不足，无法冻结悬赏积分';
+    case 'QA-4001': return '问题不存在或已被删除';
+    case 'SYS-NETWORK': return e.message;
+    default: return e.message;
+  }
 }
 
 /**
@@ -185,6 +313,7 @@ export function QuestionDetailPage() {
  */
 function CommentList({ comments, targetType, targetId, me, onCreated }: {
   comments: Comment[];
+
   targetType: 'QUESTION' | 'ANSWER';
   targetId: number;
   me: Me | null;
