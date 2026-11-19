@@ -184,17 +184,40 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- 覆盖率门禁 = 适应度函数 FF-4。
-                     配置只声明在这里，由 co-identity-domain / co-qa-domain /
-                     co-reputation-domain / co-discovery-domain 四个模块显式引用后继承。
-                     不能写在 <build><plugins>：那样会被所有子模块继承，而 co-shared-kernel、
-                     co-*-application 等模块的行覆盖率远低于阈值（实测 0.31 / 0.54），
-                     一进 verify 阶段就会红。阈值仍由 domain.coverage.minimum 统一给，
-                     某个模块需要不同口径时在自己的 pom 里覆盖即可。 -->
+                <!-- 覆盖率：报告全模块出，门禁只对领域层生效（适应度函数 FF-4）。
+
+                     分工是这样切的：
+                     · prepare-agent / report 放在下面的 <build><plugins>，所有模块都会
+                       生成 target/site/jacoco/（docs/reports 的覆盖率截图要用到应用层数据）；
+                     · check 不在这里给 execution，否则 <pluginManagement> 里的 execution 会
+                       合并进每一个继承了 jacoco 声明的模块 —— co-shared-kernel 行覆盖只有
+                       0.31、co-qa-application 0.54，一进 verify 就 BUILD FAILURE。
+                       所以 check 由四个 *-domain 模块各自声明一个 execution 来「激活」，
+                       规则本身（阈值、haltOnFailure）仍只在这里维护一份。 -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${jacoco.version}</version>
+                    <configuration>
+                        <!-- 以下都是 check goal 的参数：只有领域模块声明了 check 才会读到，
+                             其余模块执行 prepare-agent / report 时忽略。
+                             haltOnFailure 写出来是为了把行为钉死：实测 0.8.12 默认已经是 true
+                             （删掉这行、阈值临时调到 0.99，co-qa-domain 依然 BUILD FAILURE），
+                             只是防止以后换版本默认值变了却没人发现。 -->
+                        <haltOnFailure>true</haltOnFailure>
+                        <rules>
+                            <rule>
+                                <element>BUNDLE</element>
+                                <limits>
+                                    <limit>
+                                        <counter>LINE</counter>
+                                        <value>COVEREDRATIO</value>
+                                        <minimum>${domain.coverage.minimum}</minimum>
+                                    </limit>
+                                </limits>
+                            </rule>
+                        </rules>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>prepare-agent</id>
@@ -205,33 +228,16 @@
                             <phase>verify</phase>
                             <goals><goal>report</goal></goals>
                         </execution>
-                        <execution>
-                            <id>check-coverage</id>
-                            <goals><goal>check</goal></goals>
-                            <!-- check 默认 haltOnFailure=false：不达标只打 WARNING，
-                                 构建照样 BUILD SUCCESS，门禁等于没设。必须显式打开，
-                                 并配一次反向验证确认它真的会红。 -->
-                            <configuration>
-                                <haltOnFailure>true</haltOnFailure>
-                                <rules>
-                                    <rule>
-                                        <element>BUNDLE</element>
-                                        <limits>
-                                            <limit>
-                                                <counter>LINE</counter>
-                                                <value>COVEREDRATIO</value>
-                                                <minimum>${domain.coverage.minimum}</minimum>
-                                            </limit>
-                                        </limits>
-                                    </rule>
-                                </rules>
-                            </configuration>
-                        </execution>
                     </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- 全模块挂 agent 并出报告，但不做检查 -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>

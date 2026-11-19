@@ -29,13 +29,19 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- 只声明插件，不写 version 也不写 executions：
-                 版本与 prepare-agent / report / check-coverage 三个 execution
-                 全部从父 POM 的 <pluginManagement> 继承。
-                 这样门禁规则只维护一处，又不会波及非领域模块。 -->
+            <!-- 版本、prepare-agent / report 的执行配置全部从父 POM 的 <pluginManagement> 继承。
+                 check-coverage 这里显式写一个 execution，是因为父 POM 若直接给 check 配 execution，
+                 会顺着继承链跑到所有模块上（co-shared-kernel 行覆盖只有 0.31，verify 必红）。
+                 这里只负责「激活」，阈值与 haltOnFailure 仍只在父 POM 维护一份。 -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-coverage</id>
+                        <goals><goal>check</goal></goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
