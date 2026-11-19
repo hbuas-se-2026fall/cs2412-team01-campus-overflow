@@ -6,7 +6,7 @@
 
 | Lab 4 要求 | 本仓库产物 | 状态 |
 | --- | --- | --- |
-| 可运行的多模块 Maven 工程（`mvn clean install` 全绿） | 27 模块骨架 + 四个上下文全量实现 | ✅ 编译安装通过，测试全绿（CI 每次 push 都跑） |
+| 可运行的多模块 Maven 工程（`mvn clean install` 全绿） | 27 模块骨架 + 四个上下文全量实现 | ✅ `mvn -B clean install -DskipITs` 通过，单测与领域层覆盖率门禁全绿（CI 每次 push 都跑）；端到端需本机 Docker |
 | 通过 `application.yml` 启动并连上数据库 | `co-bootstrap/src/main/resources/application.yml`（dev 默认 profile） | ✅ 需 Docker 提供 MySQL 8 + Redis 7 |
 | `ADR-002-package-structure` 记录分模块决策 | [`docs/adr/009-多模块工程结构.md`](../adr/009-多模块工程结构.md) | ✅ 编号说明见该文档开头（002 已被发件箱占用） |
 | Postman Collection：`POST /api/v1/questions` 成功用例 | [`docs/postman/CampusOverflow.postman_collection.json`](../postman/CampusOverflow.postman_collection.json) | ✅ 6 个文件夹 / 23 个请求，含正向、投票切换用户与错误码负向用例 |
@@ -19,7 +19,7 @@
 # 1) 中间件（MySQL 8 带 ngram 分词配置 + Redis 7）
 docker compose -f deploy/docker-compose.yml up -d mysql redis
 
-# 2) 后端（dev profile，默认 8080）；首次启动前先 mvn -B clean install
+# 2) 后端（dev profile，默认 8080）；首次启动前先 mvn -B install -DskipITs
 cd backend
 mvn spring-boot:run -pl co-bootstrap -Dspring-boot.run.profiles=dev
 
@@ -30,16 +30,17 @@ curl http://localhost:8080/actuator/health
 
 首次启动会自动执行 5 套 Flyway 迁移（platform / identity / qa / reputation / discovery）。
 
-> **关于 `demo` profile**：`DemoDataSeeder` 依赖悬赏等业务，这些在 Sprint 2 已实现，现在可以正常启动。
-> `deploy/docker-compose.yml` 默认仍是 `prod,demo`，正式部署时改成 `prod` 即可。
+> **关于 `demo` profile**：`DemoDataSeeder` 依赖的悬赏等业务已经实现，启动路径不再中断（本次改动未在
+> 有 Docker 的机器上实测启动，验证后请把这句改成实测结论）。`deploy/docker-compose.yml` 默认仍是 `prod,demo`，
+> 正式部署时改成 `prod` 即可。
 
 ## 2. 构建验证
 
 ```powershell
 cd backend
 
-# 编译 + 安装（测试全绿，不需要再跳过了）
-mvn -B clean install
+# 编译 + 安装（跳过端到端：install 生命周期会经过 verify，触发 Testcontainers）
+mvn -B clean install -DskipITs
 
 # Q&A 领域测试（42 个，秒级）
 mvn -B test -pl co-qa/co-qa-domain -am
@@ -52,7 +53,9 @@ mvn -B test -pl co-bootstrap -am `
   '-Dtest=ArchitectureTest' '-DfailIfNoTests=false' '-Dsurefire.failIfNoSpecifiedTests=false'
 ```
 
-上面三条命令现在都应通过；`mvn -B verify` 会额外跑覆盖率门禁（领域层 ≥ 0.75）与端到端测试，后者需要本机 Docker。
+上面三条命令现在都应通过。第一条带 `-DskipITs`，因为父 POM 把 failsafe 绑在 `integration-test`/`verify` 上，
+`install` 会经过 `verify`，没装 Docker 的机器会卡在 `CampusOverflowFlowIT`；去掉 `-DskipITs` 才是全量，
+需要本机 Docker。覆盖率门禁（领域层 ≥ 0.75）同样在 `verify` 阶段执行。
 
 ## 3. 跑 Postman 集合
 
@@ -108,6 +111,6 @@ FROM qa_answer ORDER BY id DESC LIMIT 1;
 | `422 QA-1001` | 标题不在 10–150 字（用 `code` 判断，不要匹配提示文案） |
 | `422 QA-1005` | 标签数量不在 1–5 个 |
 | `422 QA-1015` | 给自己的内容投票 |
-| `422 QA-1008` | 内容已被软删除（不是 404；404 只表示 ID 不存在）。决策见 ADR-010（`docs/adr/`，随 PR 合入） |
+| `422 QA-1008` | 内容已被软删除（不是 404；404 只表示 ID 不存在）。决策见 `docs/adr/010-已删除内容的错误码.md` |
 | 启动报 Flyway 校验失败 | 本地库是旧版本：`docker compose down -v` 后重来（会清空数据） |
 | `Could not resolve dependencies ... co-shared-kernel` | 单独构建子模块时漏了 `-am` |
