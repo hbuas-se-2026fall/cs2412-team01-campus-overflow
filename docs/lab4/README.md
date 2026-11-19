@@ -93,8 +93,8 @@ FROM qa_answer ORDER BY id DESC LIMIT 1;
 | 回答（提交/编辑/删除/采纳/教师认证） | ✅ 可用（教师认证需教师账号） |
 | 投票（+1/-1/撤销/改投增量） | ✅ 可用 |
 | 评论（一级评论 + 二级回复） | ✅ 可用 |
-| 声誉、徽章、悬赏、排行榜 | ✅ 可用（Sprint 2 完成，见 `docs/scrum/sprint-2.md`） |
-| 搜索、相关推荐、通知 | ✅ 可用（Sprint 3 完成，见 `docs/scrum/sprint-3.md`） |
+| 声誉、徽章、悬赏、排行榜 | ✅ 可用（代码在 Sprint 2 窗口内完成，评审结论见 `docs/scrum/sprint-2.md`） |
+| 搜索、相关推荐、通知 | ✅ 可用（实现在 `6c1f74a`，早于 S3 窗口；S3 的端到端验证与幂等测试进行中） |
 
 **环境限制**：本机没有 Docker 时仍可跑领域层与应用层测试，但跑不了 `CampusOverflowFlowIT`（Testcontainers）
 和一键部署。建议组内至少两台机器装好 Docker Desktop，答辩前用它做一次完整演示。
