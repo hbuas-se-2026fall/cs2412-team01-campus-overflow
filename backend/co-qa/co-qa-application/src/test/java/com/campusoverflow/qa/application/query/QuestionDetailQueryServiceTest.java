@@ -25,7 +25,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** 问答查询用例测试：基于假读模型，验证缓存旁路、批量取用户、回答排序、评论分组与按钮权限提示。 */
+/**
+ * 问答查询用例测试：基于假读模型，验证缓存旁路、批量取用户、回答排序、评论分组与按钮权限提示。
+ *
+ * <p>本类与 {@code QuestionQueryServiceTest} 原本同名：一侧在 main 上验证详情视图，
+ * 另一侧在 develop 上验证列表筛选，合并时同名不同内容会直接编译失败，因此保留两份、本类改名。
+ * 除下列三处随列表接口从 {@code Long courseId} 演进到 {@code QuestionFilter} 的签名适配外，
+ * 用例内容与 main 分支一致：{@code list(...)} 的入参、{@code key(...)} 的形参、
+ * 以及两个测试替身里 {@code listQuestions} / {@code get} / {@code put} 的签名。</p>
+ */
 class QuestionDetailQueryServiceTest {
 
     private static final Instant T0 = Instant.parse("2026-10-08T06:00:00Z");
@@ -72,7 +80,7 @@ class QuestionDetailQueryServiceTest {
         readModel.questions.put(11L, question(11, 2, null, 0));
         PageRequest page = new PageRequest(0, 20);
 
-        PageResult<QuestionSummaryView> result = service.list(100L, page);
+        PageResult<QuestionSummaryView> result = service.list(QuestionFilter.ALL.withCourse(100L), page);
 
         assertThat(result.items()).hasSize(2);
         QuestionSummaryView first = result.items().get(0);
@@ -80,7 +88,7 @@ class QuestionDetailQueryServiceTest {
         assertThat(first.accepted()).isTrue();
         assertThat(first.author().displayName()).isEqualTo("小明");
         assertThat(result.items().get(1).accepted()).isFalse();
-        assertThat(cache.store).containsKey(key(100L, page));
+        assertThat(cache.store).containsKey(key(QuestionFilter.ALL.withCourse(100L), page));
         assertThat(readModel.listCalls).isEqualTo(1);
     }
 
@@ -89,9 +97,9 @@ class QuestionDetailQueryServiceTest {
     void listHitsCache() {
         PageRequest page = new PageRequest(0, 20);
         PageResult<QuestionSummaryView> cached = PageResult.empty(0, 20);
-        cache.store.put(key(null, page), cached);
+        cache.store.put(key(QuestionFilter.ALL, page), cached);
 
-        assertThat(service.list(null, page)).isSameAs(cached);
+        assertThat(service.list(QuestionFilter.ALL, page)).isSameAs(cached);
         assertThat(readModel.listCalls).isZero();
     }
 
@@ -100,7 +108,7 @@ class QuestionDetailQueryServiceTest {
     void listToleratesMissingAuthor() {
         readModel.questions.put(10L, question(10, 404, null, 0));
 
-        QuestionSummaryView view = service.list(null, new PageRequest(0, 20)).items().get(0);
+        QuestionSummaryView view = service.list(QuestionFilter.ALL, new PageRequest(0, 20)).items().get(0);
 
         assertThat(view.author().id()).isEqualTo(404);
         assertThat(view.author().displayName()).isEqualTo("已注销用户");
@@ -255,8 +263,8 @@ class QuestionDetailQueryServiceTest {
 
     // ---------------------------------------------------------------- 测试替身
 
-    private static String key(Long courseId, PageRequest page) {
-        return courseId + ":" + page.page() + ":" + page.size();
+    private static String key(QuestionFilter filter, PageRequest page) {
+        return filter.cacheKey() + ":" + page.page() + ":" + page.size();
     }
 
     static class FakeReadModel implements QaReadModel {
@@ -270,7 +278,7 @@ class QuestionDetailQueryServiceTest {
         int lastTagLimit;
 
         @Override
-        public PageResult<QuestionRow> listQuestions(Long courseId, PageRequest page) {
+        public PageResult<QuestionRow> listQuestions(QuestionFilter filter, PageRequest page) {
             listCalls++;
             List<QuestionRow> items = new ArrayList<>(questions.values());
             return new PageResult<>(items, items.size(), page.page(), page.size());
@@ -330,13 +338,13 @@ class QuestionDetailQueryServiceTest {
         final Map<String, PageResult<QuestionSummaryView>> store = new HashMap<>();
 
         @Override
-        public Optional<PageResult<QuestionSummaryView>> get(Long courseId, PageRequest page) {
-            return Optional.ofNullable(store.get(key(courseId, page)));
+        public Optional<PageResult<QuestionSummaryView>> get(QuestionFilter filter, PageRequest page) {
+            return Optional.ofNullable(store.get(key(filter, page)));
         }
 
         @Override
-        public void put(Long courseId, PageRequest page, PageResult<QuestionSummaryView> value) {
-            store.put(key(courseId, page), value);
+        public void put(QuestionFilter filter, PageRequest page, PageResult<QuestionSummaryView> value) {
+            store.put(key(filter, page), value);
         }
 
         @Override
