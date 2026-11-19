@@ -1,98 +1,111 @@
-# CampusOverflow · 学生初始框架（Java / Spring Boot 3）
+# CampusOverflow · 校园问答平台
 
-这是《软件工程》贯穿项目的**起始代码**。整体骨架、构建脚本、部署与 CI 已经就位，
-**四个限界上下文中的 Identity（身份与认证）是完整的参考实现**，其余三个上下文的核心业务留给你们按 Sprint 实现。
+> 《软件工程》课程贯穿项目 ｜ 团队 cs2412-team01 ｜ 模块化单体 × DDD × Scrum × GitHub 协作
+> Java 21 · Spring Boot 3.4 · MySQL 8 · Redis 7 · React 18 · GitHub Actions
 
-现在克隆下来直接跑 `mvn test`，你会看到**大量失败的测试**——这不是环境坏了，这是你们这学期的需求说明书。
+## 0. 项目状态（2026-11-19）
 
-## 1. 五分钟跑起来
+| 项 | 状态 |
+| :-- | :-- |
+| 待实现方法 | **0 / 107**（起始代码的 107 个 `TODO(Sx)` 已全部清零） |
+| 测试 | 54 个测试文件（领域 + 应用 + 契约 + 端到端），`develop` 上 CI 绿 |
+| 领域层覆盖率门禁 | **0.75**（`backend/pom.xml` 的 `domain.coverage.minimum`，`haltOnFailure=true`） |
+| 架构约束 | ArchUnit FF-1~FF-6 全绿（无框架侵入、无跨上下文越界、无环） |
+| 当前 Sprint | S2 声誉与激励（11-06 ~ 11-19，**待评审**）→ S3 内容发现（11-20 起） |
+| 交付版本 | `v0.1.0`（S0）、`v0.2.0`（S1）；`v0.3.0` / `v0.9.0` / `v1.0.0` 待创建 |
+
+## 1. 快速开始
 
 ```bash
-# 1) 起中间件（需要 Docker）
+# 1) 起中间件（MySQL 8 已配 ngram 分词，Redis 7）
 docker compose -f deploy/docker-compose.yml up -d mysql redis
 
-# 2) 编译并跑测试（第一次会红，这是预期的）
+# 2) 编译 + 跑测试
 cd backend && mvn clean test
 
-# 3) 启动后端（dev profile，不要加 demo，因为演示数据依赖尚未实现的业务代码）
+# 3) 启动后端（dev profile；不要加 demo，演示数据依赖 S3 之前的业务完成度）
 mvn spring-boot:run -pl co-bootstrap -Dspring-boot.run.profiles=dev
 
 # 4) 启动前端
 cd ../frontend && npm install && npm run dev      # http://localhost:5173
 ```
 
-接口文档：http://localhost:8080/swagger-ui.html
+- 接口文档：<http://localhost:8080/swagger-ui.html>
+- 健康检查：`curl http://localhost:8080/actuator/health`
+- Postman 集合：[docs/postman/](docs/postman/CampusOverflow.postman_collection.json)（6 文件夹 / 23 请求，含负向用例）
 
-## 2. 已经给你们的 vs 需要你们写的
+## 2. 工程结构
 
-| 已提供（读懂它，不要重写） | 需要你们实现 |
-| --- | --- |
-| 27 个 Maven 模块的骨架与依赖关系 | Q&A、Reputation、Discovery 三个上下文的**领域层**（聚合、值对象、业务规则） |
-| `co-shared-kernel`：领域异常、Actor、事件契约、分页 | 上述三个上下文的**应用层**（用例编排、事务边界、事件发布） |
-| **Identity 上下文完整实现**（注册、登录、课程、角色）——当作范例 | 前端页面的功能增强（见第 6 节） |
-| 所有 `*-api` 发布语言、所有基础设施适配器（JPA / Redis / JDBC）与 REST 控制器 | 你们自己补充的单元测试（领域层覆盖率要求见第 5 节） |
-| 安全链、发件箱中继、全局异常处理、Flyway 迁移、Docker、CI | |
-| **107 个 `TODO` 方法与 38 个随之失败的测试**（领域测试 + 应用层用例测试 + 端到端集成测试） | |
+27 个 Maven 模块：`co-bootstrap`（启动与安全装配）+ `co-shared-kernel`（领域异常、Actor、事件契约、分页）
++ 4 个限界上下文，每个上下文再分 `api / domain / application / infrastructure / interfaces` 五层。
 
-> 为什么基础设施是给好的？因为本课程要考察的是**领域建模与架构约束**，而不是 JPA 映射的熟练度。
-> 你只要把领域方法写对，适配器就能正常工作。
+| 上下文 | 职责 | 对外契约 |
+| :-- | :-- | :-- |
+| `co-identity` | 注册登录、课程与成员关系、角色 | `IdentityApi`、`UserRegisteredEvent` |
+| `co-qa` | 提问、回答、投票、评论、采纳、教师认证 | `QaQueryApi`、Q&A 领域事件 |
+| `co-reputation` | 声誉账本、徽章、悬赏、排行榜、对账 | `ReputationApi`、`AnswerAcceptedEvent` 等订阅 |
+| `co-discovery` | 搜索投影、相关推荐、通知与 @ 提及 | 只读投影，订阅全部上游事件 |
 
-## 3. 怎么开始：跟着测试走
+跨上下文**只能**经 `*-api` 或集成事件；数据库按表名前缀（`id_` `qa_` `rep_` `dis_`）隔离，禁止跨前缀 JOIN。
 
-1. 打开 `docs/学生任务清单.md`，里面列出了全部 107 个 `TODO` 方法及其所在文件。
-2. 从 Q&A 的领域层开始：`co-qa/co-qa-domain/src/test/java/.../QuestionTest.java` 就是规格说明。
-3. 运行单个测试类：`mvn test -pl co-qa/co-qa-domain -Dtest=QuestionTest`
-4. 红 → 绿 → 重构，逐个把测试变绿；再写应用层，让 `AnswerAndVoteServiceTest` 变绿。
-5. 三个上下文都绿之后，跑 `mvn verify`（需要 Docker），端到端集成测试会验证“提问 → 回答 → 采纳 → 声誉 → 搜索 → 通知”整条链路。
+## 3. Sprint 计划（8 周）
 
-**允许你们增加方法、增加类、增加测试**，但**不要修改已有测试的断言**——那相当于改需求；
-如果你确信某条测试与文档矛盾，在 PR 里说明并与教师确认。
+| Sprint | 周次 | 目标 | 版本 | 记录 |
+| :-- | :-- | :-- | :-- | :-- |
+| S0 | 1 | 启动与基础设施：仓库、环境、CI、Backlog | `v0.1.0` | [sprint-0](docs/scrum/sprint-0.md) |
+| S1 | 2–3 | 问答核心：提问 → 回答 → 投票 → 评论 → 采纳 | `v0.2.0` | [sprint-1](docs/scrum/sprint-1.md) |
+| S2 | 4–5 | 声誉与激励：账本、徽章、悬赏、排行榜 | `v0.3.0` | [sprint-2](docs/scrum/sprint-2.md) |
+| S3 | 6–7 | 内容发现：搜索、推荐、通知、端到端贯通 | `v0.9.0` | [sprint-3](docs/scrum/sprint-3.md) |
+| S4 | 8 | 稳定化与发布：可观测性、一键部署、答辩 | `v1.0.0` | [sprint-4](docs/scrum/sprint-4.md) |
 
-## 4. Sprint 与任务对应
+## 4. 文档地图
 
-| Sprint | 周次 | 目标 | 对应任务 |
-| --- | --- | --- | --- |
-| S0 | 1–2 | 跑通环境、读懂 Identity 参考实现与架构文档 | 无编码任务；提交环境验证截图与架构理解笔记 |
-| S1 | 3–6 | 身份与课程：读懂并**扩展** Identity（如选课审批、个人资料） | 在 Identity 上下文中自行设计增量需求 |
-| S2 | 7–10 | 问答核心：Q&A 上下文全部 TODO | `docs/学生任务清单.md` 中标记 **S2** 的 36 个方法 |
-| S3 | 11–13 | 声誉与发现：Reputation + Discovery 上下文全部 TODO | 标记 **S3** 的 71 个方法 |
-| S4 | 14–15 | 打磨：性能、可观测性、前端体验、演示准备 | 第 6 节的增强任务 + 压测与指标 |
+| 想了解 | 去哪看 |
+| :-- | :-- |
+| 需求基线与优先级（48 条 PBI / 163 点） | [docs/backlog/product-backlog.md](docs/backlog/product-backlog.md) |
+| PBI → Issue → PR → 测试 的追踪 | [docs/backlog/traceability.md](docs/backlog/traceability.md) |
+| 验收标准（Gherkin 场景） | [docs/backlog/stories/](docs/backlog/stories/) |
+| Scrum 记录（计划 / 评审 / 燃尽 / 回顾） | [docs/scrum/](docs/scrum/) |
+| 领域模型、上下文映射、事件目录 | [docs/ddd/](docs/ddd/) |
+| 架构决策（10 条 ADR） | [docs/adr/](docs/adr/README.md) |
+| 错误码与 HTTP 状态映射 | [docs/错误码.md](docs/错误码.md) |
+| 发布说明 | [docs/release/](docs/release/) |
+| 部署与运维 | [deploy/README.md](deploy/README.md) |
+| 起始代码的 107 个 TODO 清单（历史存档） | [docs/学生任务清单.md](docs/学生任务清单.md) |
 
-## 5. 验收门槛（对应课程考核）
+## 5. 团队与协作
 
-| 项目 | 要求 | 如何自检 |
-| --- | --- | --- |
-| 单元测试 | 全部通过 | `mvn test` |
-| 领域层覆盖率 | ≥ 70%（把 `backend/pom.xml` 中的 `domain.coverage.minimum` 从 `0` 改成 `0.70` 后仍能通过） | `mvn verify` |
-| 架构约束 | ArchUnit 全部通过（领域层零框架依赖、跨上下文只经 api、无环、实体表名前缀） | `mvn test -pl co-bootstrap -Dtest=ArchitectureTest` |
-| 集成测试 | 端到端链路通过 | `mvn verify`（需要 Docker） |
-| 前端 | 类型检查与构建通过 | `cd frontend && npm run typecheck && npm run build` |
-| 流水线 | GitHub Actions 全绿 | 推送后看 Actions 页 |
+| 角色 | 成员 | GitHub |
+| :-- | :-- | :-- |
+| PO | 韦国超 | @jingmo2233 |
+| SM（轮值） | 冯先顺（S0/S4）、宾艺涵（S1）、陈阳（S2）、张博（S3） | @fxs0917 / @XY1897 / @yttt697 / @llll-b01 |
+| Developer | 宾艺涵、陈阳、张博、冯先顺 | 同上 |
 
-**不要为了让测试通过而删测试或放宽断言**——CI 的历史记录会保留每一次改动，这属于学术诚信范畴。
+- 分支：`main`（只接受发布 PR、打 tag）← `develop`（集成分支）← `feature/*`、`fix/*`、`docs/*`
+- 提交信息：Conventional Commits（`feat:` `fix:` `test:` `docs:` `refactor:` `chore:` `ci:`）
+- PR 规则：一个 PR 一个 Task/Story，正文写 **`Closes #<Issue>`**，至少 1 名非作者 Approve
+- 详见 [团队章程](docs/team/charter-v1.0.md)
 
-## 6. 前端增强任务（S4 建议）
+## 6. 验收门槛（自检）
 
-前端已提供可运行的骨架（登录/注册、问题列表与搜索、详情页投票与采纳、提问、排行榜、通知）。建议自行完成：
+| 项目 | 命令 | 要求 |
+| :-- | :-- | :-- |
+| 单元测试 | `cd backend && mvn test` | 全绿 |
+| 领域覆盖率 | `mvn verify` | `domain.coverage.minimum = 0.75` |
+| 架构约束 | `mvn test -pl co-bootstrap -Dtest=ArchitectureTest` | FF-1~FF-6 通过 |
+| 集成测试 | `mvn verify`（需 Docker） | `CampusOverflowFlowIT` 通过 |
+| 前端 | `cd frontend && npm run typecheck && npm run build` | 通过 |
+| 流水线 | 推送后看 Actions | 全绿 |
 
-- 分页与无限滚动、加载骨架屏与错误重试；
-- Markdown 实时预览与代码高亮；
-- 悬赏发起对话框（当前是 `prompt()` 占位）、悬赏倒计时展示；
-- 通知红点的实时刷新（当前是 30 秒轮询，可改 SSE）；
-- 移动端适配与可访问性（键盘操作、对比度）。
+**红线**：不修改已有测试断言、不 `@Disabled`、不删除测试、不 force push `main`/`develop`、不提交密钥与真实学号。
 
-## 7. 你必须先读的三份材料
-
-1. `docs/adr/`：8 条架构决策记录——**为什么**这样设计比代码本身更重要；
-2. 《CampusOverflow 软件架构设计文档（arc42）》：第 5 章构建块视图、第 6 章运行时视图、第 10 章质量场景；
-3. `docs/错误码.md`：错误码分段与 HTTP 状态映射，实现领域异常时必须遵守。
-
-## 8. 常见坑
+## 7. 常见坑
 
 | 现象 | 原因 |
-| --- | --- |
-| `UnsupportedOperationException: TODO(S2)...` | 正常，说明这个方法还没实现 |
-| 声誉不变化 | 声誉是异步结算的：事件先落 `outbox_event`，由中继投递；检查 `last_error` 字段 |
-| 中文搜索没结果 | 必须用 compose 里的 MySQL（已配置 `ngram_token_size=2`），自建库请对照参数 |
+| :-- | :-- |
+| `UnsupportedOperationException: TODO(Sx)` | 历史现象；107 个 TODO 已全部实现，若再出现说明合并回了旧分支 |
+| 声誉不变化 | 声誉是**异步**结算：事件先落 `outbox_event`，中继投递后再记账；看 `last_error` |
+| 中文搜索没结果 | 必须用 compose 里的 MySQL（`ngram_token_size=2`），自建库需对照参数 |
 | 事件重复导致加分两次 | 消费端必须幂等：账本唯一键 `(event_id, user_id, reason)` 或 `processed_event` 表 |
-| 提交后 CI 红 | 先本地跑 `mvn verify`，再推送；不要把红的分支合并到 `main` |
+| 提交后 CI 红 | 先本地 `mvn verify`，再推送；红的分支不要合进 `develop` |
+| 已删除内容返回 422 `QA-1008` 而非 404 | 这是决策而非缺陷，见 [ADR-010](docs/adr/010-已删除内容的错误码.md) |
