@@ -95,7 +95,10 @@ public class SearchIndexProjector {
         if (!firstTime(e)) {
             return;
         }
-        // 投影存的是问题维度总分，回答的票同样计入；撤销与改投都能由差值正确表达
+        // 投影只存问题本身的得分，回答的票不计入；撤销与改投都能由差值正确表达
+        if (!"QUESTION".equals(e.targetType())) {
+            return;
+        }
         int delta = e.newValue() - e.oldValue();
         if (delta != 0) {
             index.adjustScore(e.questionId(), delta);
