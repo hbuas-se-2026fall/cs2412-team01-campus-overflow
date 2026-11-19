@@ -86,7 +86,22 @@
 
 > **为什么 S2/S3 是“待验收”而不是“已验收”**：代码在 Sprint 1 期间已全部实现，但 `v0.3.0` / `v0.9.0` 标签与 Release 尚未创建，也没有对应的评审记录 —— 按 DoD 第 7 条（本地按验收标准演示通过）尚不能判定完成。补齐 Sprint 2、Sprint 3 的评审记录后改为 ✅。
 
-## 5. 变更记录
+## 5. Gherkin 验收标准索引
+
+| 故事ID | 验收标准文件 | 场景数 |
+| :--- | :--- | :--- |
+| PB-01 | [us-001-register.feature](stories/us-001-register.feature) | 3 |
+| PB-06 | [us-003-ask.feature](stories/us-003-ask.feature) | 3 |
+| PB-07 / PB-31 | [us-002-browse.feature](stories/us-002-browse.feature) | 4 |
+| PB-08 | [pb-08-detail.feature](stories/pb-08-detail.feature) | 4 |
+| PB-09 | [pb-09-answer.feature](stories/pb-09-answer.feature) | 4 |
+| PB-10 | [pb-10-accept.feature](stories/pb-10-accept.feature) | 5 |
+| PB-11 | [pb-11-vote.feature](stories/pb-11-vote.feature) | 4 |
+| PB-15 | [pb-15-comment.feature](stories/pb-15-comment.feature) | 5 |
+
+每个文件均覆盖快乐路径、边界路径与异常路径。
+
+## 6. 变更记录
 
 | 版本 | 日期 | 变更 | 作者 |
 | :-- | :-- | :-- | :-- |
