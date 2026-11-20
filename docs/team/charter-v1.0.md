@@ -29,8 +29,19 @@
 - [ ] 相关文档/ADR 已更新
 
 ## 全员签名
-- PO：韦国超 (组长)
-- Developer：宾艺涵
-  Developer：陈阳
-- Developer：张博
-- sm：冯先顺
+
+| 角色 | 成员 | GitHub |
+| :-- | :-- | :-- |
+| PO | 韦国超（组长） | @jingmo2233 |
+| SM（轮值，见下表） | 冯先顺 / 宾艺涵 / 陈阳 / 张博 | @fxs0917 / @XY1897 / @yttt697 / @llll-b01 |
+| Developer | 宾艺涵、陈阳、张博、冯先顺 | — |
+
+SM 按 Sprint 轮值，每届只写一次，避免“到底谁是 SM”说不清：
+
+| Sprint | SM | 记录 |
+| :-- | :-- | :-- |
+| S0 | 冯先顺 | [scrum/sprint-0.md](../scrum/sprint-0.md) |
+| S1 | 宾艺涵 | [scrum/sprint-1.md](../scrum/sprint-1.md) |
+| S2 | 陈阳 | [scrum/sprint-2.md](../scrum/sprint-2.md) |
+| S3 | 张博 | [scrum/sprint-3.md](../scrum/sprint-3.md) |
+| S4 | 冯先顺 | [scrum/sprint-4.md](../scrum/sprint-4.md) |
