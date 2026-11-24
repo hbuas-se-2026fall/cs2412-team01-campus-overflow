@@ -68,3 +68,41 @@ jobs:
       - name: 构建
         working-directory: ./frontend
         run: npm run build
+
+  # 端到端测试：用 Testcontainers 起 MySQL 8 + Redis 7，跑 CampusOverflowFlowIT。
+  # 放在独立 job 里而不是塞进 backend：
+  #   1) backend 用 -pl "$SPRINT_MODULES" 只选 9 个模块，co-bootstrap 不在 reactor 里；
+  #   2) 起容器的开销不该让单元测试跟着等，并行跑两个 job 总时长基本不变。
+  # ubuntu-latest runner 自带 Docker，Testcontainers 可以直接用，不需要 service container。
+  e2e:
+    name: 端到端测试
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # co-bootstrap 依赖其它模块的 SNAPSHOT，先装进本地仓库
+      - name: 安装所有依赖模块 (跳过测试)
+        run: mvn -B -f backend/pom.xml install -DskipTests
+
+      # 注意这里不带 -DskipITs：failsafe 在 verify 阶段执行 *IT 结尾的类
+      - name: 端到端集成测试 (Testcontainers)
+        run: mvn -B -f backend/pom.xml verify -pl co-bootstrap -am
+
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-surefire-reports
+          path: |
+            backend/co-bootstrap/target/surefire-reports/
+            backend/co-bootstrap/target/failsafe-reports/
+          if-no-files-found: warn
