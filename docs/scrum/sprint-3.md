@@ -56,7 +56,7 @@
 | 速度 | 待定（S2 为 42） | 本节 |
 | 合并 PR 数 / 平均周转 | 进行中 | GitHub API |
 | CI 红灯次数 / 平均恢复 | 目标 < 5 次 / < 24 h（S2 为 28 次） | Actions |
-| 端到端测试 | `CampusOverflowFlowIT`：本地 Docker 29 下 4/4 通过、`mvn verify` 497 例全绿（#67）；CI 仍带 `-DskipITs`，待 T3-09 开启 | `mvn verify` |
+| 端到端测试 | `CampusOverflowFlowIT`：CI 已开启（#119，独立 `e2e` job），4/4 通过（29.6 s，含拉取 mysql:8.0.39 与 redis:7-alpine）；本地 `mvn verify` 497 例全绿（#67） | `mvn verify` |
 | 领域覆盖率 | 要求 ≥ 70%，门禁已设 0.75（#62）（`co-discovery-domain` 当前已补至 100%） | JaCoCo |
 | 燃尽图 | 见 [burndown/sprint-3.csv](burndown/sprint-3.csv)（SM 每站会后更新） | 本目录 |
 | 版本标签 | `v0.9.0` —— 待创建 | `git tag` |
