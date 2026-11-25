@@ -8,6 +8,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.campusoverflow.identity.application.AdminUserService;
+import com.campusoverflow.identity.application.CreateStaffCommand;
+import com.campusoverflow.shared.security.Actor;
+import com.campusoverflow.shared.security.Role;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
@@ -57,6 +61,9 @@ class CampusOverflowFlowIT {
 
     @Autowired
     ObjectMapper json;
+
+    @Autowired
+    AdminUserService admins;
 
     @Test
     void 提问到采纳的完整链路会异步结算声誉并更新搜索与通知() throws Exception {
@@ -196,6 +203,39 @@ class CampusOverflowFlowIT {
         // 非法排序参数 → 400
         mvc.perform(get("/api/v1/questions").param("sort", "hot"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 管理员禁用账号后该用户无法再登录() throws Exception {
+        // 与 DemoDataSeeder 相同：用引导主体创建第一个管理员
+        long adminId = admins.createStaff(new Actor(0L, "system", Role.ADMIN), new CreateStaffCommand("A9001",
+                "测试管理员", "it-admin@campus.edu.cn", "Campus2026", Role.ADMIN, "信息中心"));
+        long fangId = register("2026020", "测试小方", "it-fang@campus.edu.cn");
+        register("2026021", "测试小陆", "it-lu@campus.edu.cn");
+        MockHttpSession admin = login("A9001");
+        MockHttpSession lu = login("2026021");
+
+        // 非管理员被 URL 级授权拦截
+        mvc.perform(post("/api/v1/admin/users/" + fangId + "/disable").session(lu).with(csrf()))
+                .andExpect(status().isForbidden());
+
+        // 管理员不能禁用自己
+        mvc.perform(post("/api/v1/admin/users/" + adminId + "/disable").session(admin).with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("ID-1007"));
+
+        mvc.perform(post("/api/v1/admin/users/" + fangId + "/disable").session(admin).with(csrf()))
+                .andExpect(status().isNoContent());
+
+        // 重复禁用 → 409
+        mvc.perform(post("/api/v1/admin/users/" + fangId + "/disable").session(admin).with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("ID-2007"));
+
+        // 被禁用的账号再次登录失败
+        mvc.perform(post("/api/v1/auth/login").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"2026020\",\"password\":\"Campus2026\"}"))
+                .andExpect(status().isUnauthorized());
     }
 
     private long register(String username, String displayName, String email) throws Exception {
