@@ -44,7 +44,7 @@
 | PB-37 | 端到端集成测试全绿且领域覆盖率 ≥ 70% | S3 | Must | 3 | #26 | #67 | — | v0.9.0 | 🟡 待本地 Docker 验证 |
 | PB-38 | demo profile 能加载完整演示数据 | S3 | Should | 1 | **缺** | — | — | v0.9.0 | 🟡 待验证 |
 | PB-39 | Discovery 应用层单元测试（验证投影幂等） | S3 | Must | 3 | **缺** | — | `DiscoveryDomainTest`、`DiscoveryQueryServiceTest`、`DiscoveryQueryServiceViewMappingTest`、`DiscoverySearchAndNotificationBoundaryTest` | v0.9.0 | ✅ 已完成 |
-| PB-40 | 禁用违规账号并使其立即下线（ADR-003） | S4 | Should | 5 | **缺** | #60、#61 | `UserQueryServiceTest`、`UserRegistrationServiceTest`、`UserTest` | v1.0.0 | ⬜ 未开始 |
+| PB-40 | 禁用违规账号并使其立即下线（ADR-003） | S4 | Should | 5 | #108 | #60、#61、#121 | `UserTest`、`AdminUserServiceTest`、`CampusOverflowFlowIT` | v1.0.0 | 🟡 进行中（会话立即失效待手工验证） |
 | PB-41 | 查看和修改个人资料（学院、班级） | S4 | Could | 3 | **缺** | — | `IdentityApiImplTest` | v1.0.0 | ⬜ 未开始 |
 | PB-42 | 获得更好的前端体验：分页/骨架屏/错误重试、Markdown 实时预览 | S4 | Should | 3 | **缺** | — | — | v1.0.0 | ⬜ 未开始 |
 | PB-43 | 通知红点实时刷新（SSE 替代 30 秒轮询） | S4 | Could | 5 | **缺** | — | — | v1.0.0 | ⬜ 未开始 |
@@ -57,10 +57,10 @@
 ## 统计
 
 - PBI 总数：48
-- 已有 Issue：19 / 48
+- 已有 Issue：20 / 48
 - 关联到 PR：5 / 48（PR 正文补 `Closes #` 后会提升）
 - 有测试类可作规格：35 / 48
 
 ## 缺口清单（需要建 Issue 的 PBI）
 
-PB-02、PB-03、PB-05、PB-08、PB-12、PB-13、PB-14、PB-16、PB-17、PB-18、PB-19、PB-23、PB-26、PB-27、PB-28、PB-29、PB-30、PB-33、PB-36、PB-38、PB-39、PB-40、PB-41、PB-42、PB-43、PB-44、PB-45、PB-47、PB-48
+PB-02、PB-03、PB-05、PB-08、PB-12、PB-13、PB-14、PB-16、PB-17、PB-18、PB-19、PB-23、PB-26、PB-27、PB-28、PB-29、PB-30、PB-33、PB-36、PB-38、PB-39、PB-41、PB-42、PB-43、PB-44、PB-45、PB-47、PB-48
