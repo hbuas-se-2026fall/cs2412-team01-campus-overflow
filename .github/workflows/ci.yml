@@ -20,8 +20,83 @@ env:
   SPRINT_MODULES: co-shared-kernel, co-identity/co-identity-domain, co-identity/co-identity-application, co-qa/co-qa-domain, co-qa/co-qa-application, co-reputation/co-reputation-domain, co-reputation/co-reputation-application, co-discovery/co-discovery-domain, co-discovery/co-discovery-application
 
 jobs:
+  # 判断这次改动落到哪一块，避免「改一个 .md 也装 JDK、跑 9 个模块的 verify」。
+  #
+  # 用 job 级 if 而不是 on.push.paths-ignore：
+  # workflow 级跳过会让整个 run 消失，将来一旦把某个 job 设成 required status check，
+  # PR 会永远停在 “Expected” 状态合不进去。job 被 if 跳过时状态是 skipped，
+  # required check 视为已满足，这样两头都不吃亏。
+  changes:
+    name: 变更范围
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.diff.outputs.backend }}
+      frontend: ${{ steps.diff.outputs.frontend }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # 需要完整历史才能跟 base 做 diff
+          fetch-depth: 0
+
+      - name: 计算变更范围
+        id: diff
+        run: |
+          set +e
+          changed=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+            changed=$(git diff --name-only "$base"...HEAD 2>/dev/null)
+          else
+            base="${{ github.event.before }}"
+            if [ -n "$base" ] && [ "$base" != "0000000000000000000000000000000000000000" ] \
+               && git rev-parse --verify "$base" >/dev/null 2>&1; then
+              changed=$(git diff --name-only "$base" HEAD 2>/dev/null)
+            else
+              # 新分支 / force push 之后拿不到 before，退回跟上一个提交比
+              changed=$(git diff --name-only "HEAD~1" HEAD 2>/dev/null)
+            fi
+          fi
+
+          # 只改这些路径不算代码变更
+          backend=false
+          frontend=false
+          unknown=false
+
+          if [ -z "$changed" ]; then
+            # 算不出来就保守处理：都跑一遍，宁可多烧一点额度也别漏检
+            unknown=true
+          fi
+
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              docs/*|*.md|scripts/*|.github/ISSUE_TEMPLATE/*)
+                ;;
+              frontend/*)
+                frontend=true
+                ;;
+              *)
+                backend=true
+                ;;
+            esac
+          done <<< "$changed"
+
+          if [ "$unknown" = "true" ]; then
+            backend=true
+            frontend=true
+          fi
+
+          echo "变更文件："
+          echo "$changed"
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+
   backend:
     name: 后端构建与验证
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -47,8 +122,26 @@ jobs:
       - name: 架构约束检查
         run: mvn -B -f backend/pom.xml test -pl co-bootstrap -Dtest=ArchitectureTest
 
+      # 指导书 9.4 要求提交测试报告与覆盖率报告。CI 里本来就已经生成了 JaCoCo 站点，
+      # 之前只在 runner 上待一会儿就没了，现在留档 14 天，报告里可以直接引 artifact 链接。
+      - name: 上传覆盖率与测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: |
+            backend/co-identity/co-identity-domain/target/site/jacoco/
+            backend/co-qa/co-qa-domain/target/site/jacoco/
+            backend/co-reputation/co-reputation-domain/target/site/jacoco/
+            backend/co-discovery/co-discovery-domain/target/site/jacoco/
+            backend/**/target/surefire-reports/*.txt
+          retention-days: 14
+          if-no-files-found: warn
+
   frontend:
     name: 前端构建
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -84,6 +177,8 @@ jobs:
   # 这个属性会被静默忽略，改了等于没改。
   e2e:
     name: 端到端测试
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
