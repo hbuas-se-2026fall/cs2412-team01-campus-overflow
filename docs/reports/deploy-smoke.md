@@ -82,10 +82,10 @@ CSRF 双提交可用、注册与登录接口在真实容器里工作。
 
 **不能证明**：
 
-- **浏览器端行为**。工作流用 `curl`，它对 `Set-Cookie: ...; Secure` 比浏览器宽松，
-  在纯 HTTP 下照样回传 Cookie。`prod` profile 曾把 `secure` 写死为 `true`（#123 修复），
-  真实浏览器在 `http://IP` 下会丢弃该 Cookie，表现为「登录成功但立刻回到未登录」。
-  本记录用的是 `COOKIE_SECURE=false`，所以这一条要另外验证；
+- **浏览器端行为**。工作流用 `curl`，它对 `Set-Cookie: ...; Secure` 比浏览器宽松，在纯 HTTP 下照样回传 Cookie。
+  `prod` profile 曾把 `secure` 写死为 `true`（#123 修复），真实浏览器在 `http://IP` 下会丢弃该 Cookie，
+  表现为「登录成功但立刻回到未登录」。修复后本机已确认响应头不再带 `Secure`（见下文「本机实测」），
+  但「浏览器实际能不能登录」仍建议找另一台机器用 IP 点一次；
 - **并发与性能**，这里只验证「能起来、能登录」；
 - **`deploy.sh` 自身的逻辑**（回滚标签、`preflight`），工作流直接调用 `docker compose`。
 
@@ -100,3 +100,65 @@ bash deploy/deploy.sh
 
 本地跑完之后应有同样的八条输出。若第 8 条失败（`/auth/me` 不是 200），先查 `COOKIE_SECURE`
 与浏览器/客户端的 Cookie 策略，其次查 `SESSION_COOKIE` 是否被 nginx 转发破坏。
+
+## 本机实测（Windows 11 + Docker Desktop）
+
+CI 通过后又在开发机上完整跑了一遍，目的有两个：确认编排在**非 runner 环境**里同样成立，
+以及验证 #123 对 Secure Cookie 的修复。
+
+### 环境与遇到的两个坑
+
+| 项 | 情况 |
+| :-- | :-- |
+| 系统 | Windows 11 家庭版 22631，原始状态**没有 WSL、没有 Docker** |
+| WSL | `wsl --install --no-distribution`（提示需重启，实测未重启即可用） |
+| Docker Desktop | `winget install Docker.DockerDesktop` → 29.9.3，Linux 容器，16 核 / 6.7 GB |
+| 坑 1 | `error getting credentials ... "docker-credential-desktop" not found`：该助手在 `C:\Program Files\Docker\Docker\resources\bin`，不在 PATH |
+| 坑 2 | `dial tcp 185.45.7.185:443`：`registry-1.docker.io` 被解析到错误 IP，在 `~/.docker/daemon.json` 加 `registry.m.daocloud.io` 加速源后正常 |
+
+### 构建与启动
+
+`docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env up -d --build`，
+首次约 15 分钟（拉 6 个基础镜像 + 容器内 Maven 构建 + `npm install`）。
+
+```
+co-web-prod        Up   0.0.0.0:8080->80/tcp
+co-backend-prod    Up (healthy)
+co-redis-prod      Up (healthy)
+co-mysql-prod      Up (healthy)
+```
+
+### 八条断言（与 CI 相同）
+
+| # | 检查 | 实际输出 |
+| --: | :-- | :-- |
+| 1 | compose 配置校验 | `compose config OK` |
+| 2 | 全栈构建启动 | 四个容器 Healthy |
+| 3 | 后端 readiness | `[1] backend=healthy` |
+| 4 | `GET /` | `200`（返回真实 HTML） |
+| 5 | `GET /questions` | `200` |
+| 6 | `GET /actuator/health` | `{"status":"UP","groups":["liveness","readiness"]}` |
+| 7 | `POST /auth/register` | `201` |
+| 8 | `POST /auth/login` + `GET /auth/me` | `200`，返回 `{"id":1,"username":"20269001",...}` |
+
+### #123 修复前后的响应头对比
+
+修复前（`.env` 里 `COOKIE_SECURE=false`，但 prod 把 `secure` 写死为 `true`）：
+
+```
+Set-Cookie: SESSION=<...>; Path=/; Secure; HttpOnly; SameSite=Lax
+```
+
+修复后（#123 已合并，重建后端容器）：
+
+```
+Set-Cookie: SESSION=<...>; Path=/; HttpOnly; SameSite=Lax
+```
+
+`Secure` 属性消失，正是这个 PR 想验证的东西。注意 `localhost` 被浏览器视为安全上下文，
+所以本机用手点**看不出区别**；换成另一台机器访问 `http://<IP>:8080`，修复前会登录失败、修复后正常。
+
+### 本机实测的局限
+
+本机跑的是 `COOKIE_SECURE=false` 的演示配置，且只验证了 HTTP 层；
+HTTPS（反向代理 + 证书）与并发压力都没有覆盖。
