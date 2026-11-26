@@ -93,10 +93,15 @@ jobs:
           echo "backend=$backend" >> "$GITHUB_OUTPUT"
           echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
 
+  # 下面三个 job 的 if 都写成「判断失败就兜底跑」，而不是单纯的 outputs 判断。
+  # 原因：needs 的上游 job 失败时，下游默认被跳过，状态是 skipped，
+  # 而 skipped 在分支保护里算通过 —— 那就成了「CI 绿了但什么都没跑」。
+  # 主干（main/push）无条件全量跑：发布合并往往只同步文档，跳过会让主干最新提交
+  # 没有构建记录，评审时不好解释（指导书 9.1 要求主干最新提交为绿色）。
   backend:
     name: 后端构建与验证
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || needs.changes.result != 'success' || needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -135,13 +140,13 @@ jobs:
             backend/co-reputation/co-reputation-domain/target/site/jacoco/
             backend/co-discovery/co-discovery-domain/target/site/jacoco/
             backend/**/target/surefire-reports/*.txt
-          retention-days: 14
+          retention-days: 30
           if-no-files-found: warn
 
   frontend:
     name: 前端构建
     needs: changes
-    if: needs.changes.outputs.frontend == 'true'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || needs.changes.result != 'success' || needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -178,7 +183,7 @@ jobs:
   e2e:
     name: 端到端测试
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || needs.changes.result != 'success' || needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
