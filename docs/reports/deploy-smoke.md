@@ -3,6 +3,7 @@
 > 目的：证明 `deploy/` 的生产编排（MySQL + Redis + backend + nginx）真的能起来，并能完成登录闭环。
 > 结论：**通过**，并且第一次运行就抓到一个真实缺陷。
 > 执行环境：GitHub Actions `ubuntu-latest`（自带 Docker），公开仓库不计额度。
+> 依赖：#124（已合入 `develop` `4ad14de`）提供本工作流与后端 Dockerfile 修复，本文引用的两次 run 都来自该 PR。
 
 ## 为什么在 CI 里跑
 
@@ -75,10 +76,16 @@ Container co-web-prod Started
  "role":"STUDENT","verified":false,"college":"计算机工程学院","className":"计科2301","courses":[]}
 ```
 
+> 本节及下一节的所有输出，均在 `COOKIE_SECURE=false` 的前提下取得。
+> 工作流生成 `.env` 时会显式写入这一行；`prod` profile 的默认值是 `true`，漏改会导致第 8 条变红，那与代码无关。
+
 ## 这个记录能证明什么、不能证明什么
 
-**能证明**：镜像能构建、容器编排正确、Flyway 迁移能跑、nginx 反代与会话 Cookie 链路通、
-CSRF 双提交可用、注册与登录接口在真实容器里工作。
+**能证明**：镜像能构建、容器编排正确、nginx 反代与会话 Cookie 链路通、CSRF 双提交可用、
+注册与登录接口在真实容器里工作；
+**以及：Flyway 迁移能在空数据卷上跑通**——`co-mysql-prod` 是全新卷启动的，
+`flyway_schema_history` 里 5 条记录（platform / identity / qa / reputation / discovery）`success=1`，
+建出 20 张表。这条证明的不是「代码能跑」，而是「从零部署一次能起来」。
 
 **不能证明**：
 
@@ -91,15 +98,27 @@ CSRF 双提交可用、注册与登录接口在真实容器里工作。
 
 ## 如何复现
 
+**注意**：`deploy/deploy.sh` 只做 `compose up` + 等后端 healthy + 打印地址，**它不跑那八条断言**。
+八条断言在 `.github/workflows/deploy-smoke.yml` 里，本地要照那个工作流的 curl 步骤做。
+
 ```bash
 cp deploy/.env.example deploy/.env
 # 填入：MYSQL_ROOT_PASSWORD / DB_PASSWORD / CO_FIELD_KEY（openssl rand -base64 32）
-# 纯 HTTP 演示保持 COOKIE_SECURE=false
-bash deploy/deploy.sh
+# COOKIE_SECURE=false —— 八条断言全部依赖这一行，漏改会让第 8 条变红
+bash deploy/deploy.sh          # 只到「后端 healthy + 打印地址」为止
 ```
 
-本地跑完之后应有同样的八条输出。若第 8 条失败（`/auth/me` 不是 200），先查 `COOKIE_SECURE`
-与浏览器/客户端的 Cookie 策略，其次查 `SESSION_COOKIE` 是否被 nginx 转发破坏。
+然后按工作流顺序手动验证前三条（其余见 `deploy-smoke.yml` 第 4~7 步，含 Cookie jar 与 `X-XSRF-TOKEN`）：
+
+```bash
+BASE=http://localhost:8080
+curl -s -o /dev/null -w '%{http_code}\n' "$BASE/"            # 200
+curl -s -o /dev/null -w '%{http_code}\n' "$BASE/questions"   # 200（SPA 回退）
+curl -s "$BASE/actuator/health"                               # {"status":"UP","groups":["liveness","readiness"]}
+```
+
+若第 8 条失败（`/auth/me` 不是 200），先查 `COOKIE_SECURE` 与客户端的 Cookie 策略，
+其次查 `SESSION` / `XSRF-TOKEN` 两个 Cookie 是否被 nginx 转发破坏。
 
 ## 本机实测（Windows 11 + Docker Desktop）
 
