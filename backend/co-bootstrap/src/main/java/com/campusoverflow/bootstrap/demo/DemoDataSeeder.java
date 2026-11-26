@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 演示数据（仅 demo profile 生效）：一门课、6 个账号、3 个问题，覆盖提问→回答→投票→认证→采纳→评论→悬赏全链路。
+ * 演示数据（仅 demo profile 生效）：一门课、6 个账号、5 个问题，覆盖提问→回答→投票→认证→采纳→评论→悬赏全链路。
  * 课堂演示与验收时可直接登录查看效果；所有账号密码均为 {@value #PASSWORD}。
  */
 @Component
@@ -154,6 +154,6 @@ public class DemoDataSeeder implements ApplicationRunner {
                 随机化之后最坏情况会不会退化成链表？
                 """, List.of("数据结构", "跳表")));
 
-        log.info("演示数据初始化完成：管理员 admin01 / 教师 T2001 / 助教 TA3001 / 学生 2023001-2023003，密码 {}", PASSWORD);
+        log.info("演示数据初始化完成：1 门课 / 6 账号 / 5 问题；管理员 admin01 / 教师 T2001 / 助教 TA3001 / 学生 2023001-2023003，密码 {}", PASSWORD);
     }
 }
