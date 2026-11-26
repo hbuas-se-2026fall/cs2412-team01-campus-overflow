@@ -121,10 +121,7 @@ server:
   servlet:
     session:
       cookie:
-        # 默认 true（Secure Cookie，只走 HTTPS）；纯 HTTP 演示时用 COOKIE_SECURE=false 显式关闭。
-        # 写成字面量 true 会让 compose 传进来的 COOKIE_SECURE 失效，浏览器在 http 下直接丢弃 SESSION，
-        # 表现为“登录接口 200 但后续请求都是 401”。
-        secure: ${COOKIE_SECURE:true}
+        secure: true
 springdoc:
   swagger-ui:
     enabled: false                 # 生产环境关闭在线文档
