@@ -208,13 +208,13 @@ class CampusOverflowFlowIT {
     @Test
     void 管理员禁用账号后该用户无法再登录() throws Exception {
         // 与 DemoDataSeeder 相同：用引导主体创建第一个管理员（0L 为系统主体，不对应任何真实用户）
+        // 本类排除了 Spring Session，会话失效由 DisableUserSessionRevocationIT 验证
         long adminId = admins.createStaff(new Actor(0L, "system", Role.ADMIN), new CreateStaffCommand("A9001",
                 "测试管理员", "it-admin@campus.edu.cn", "Campus2026", Role.ADMIN, "信息中心"));
         long fangId = register("2026020", "测试小方", "it-fang@campus.edu.cn");
         register("2026021", "测试小陆", "it-lu@campus.edu.cn");
         MockHttpSession admin = login("A9001");
         MockHttpSession lu = login("2026021");
-        MockHttpSession fang = login("2026020");
 
         // 非管理员被 URL 级授权拦截
         mvc.perform(post("/api/v1/admin/users/" + fangId + "/disable").session(lu).with(csrf()))
@@ -227,10 +227,6 @@ class CampusOverflowFlowIT {
 
         mvc.perform(post("/api/v1/admin/users/" + fangId + "/disable").session(admin).with(csrf()))
                 .andExpect(status().isNoContent());
-
-        // 已登录的会话被服务端立即踢掉（SessionRevoker.revokeAll）
-        mvc.perform(get("/api/v1/auth/me").session(fang))
-                .andExpect(status().isUnauthorized());
 
         // 重复禁用 → 409
         mvc.perform(post("/api/v1/admin/users/" + fangId + "/disable").session(admin).with(csrf()))
