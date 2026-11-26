@@ -1,0 +1,140 @@
+name: Deploy Smoke
+
+# 在真实 Docker 环境里跑一遍 deploy/ 的生产编排，验证「一键部署」真的能起来。
+# 关联：#83 / PB-46 · 9.4「GitHub Release（含部署说明）」
+#
+# 为什么放在 CI 而不是本机：部署要 Docker，组里多数机器没装；GitHub 的 ubuntu runner
+# 自带 Docker，且公开仓库不计额度。跑完留下日志与容器状态，评审时可以直接引用。
+#
+# 触发：
+#   - 手动：Actions → Deploy Smoke → Run workflow
+#   - PR：改到 deploy/ 或本文件时自动跑
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["develop", "main"]
+    paths:
+      - "deploy/**"
+      - ".github/workflows/deploy-smoke.yml"
+
+concurrency:
+  group: deploy-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: 全栈部署与登录闭环
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      WEB_PORT: 8080
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # runner 的磁盘只有 ~14 GB，先清掉用不到的预装件，给镜像腾地方
+      - name: 腾出磁盘空间
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h / | tail -1
+
+      - name: 生成 deploy/.env（随机密钥，与 .env.example 同结构）
+        run: |
+          cp deploy/.env.example deploy/.env
+          # 用随机值覆盖占位，避免 deploy.sh 的 preflight 拦下来
+          MYSQL_ROOT_PASSWORD="root_$(openssl rand -hex 8)"
+          DB_PASSWORD="app_$(openssl rand -hex 8)"
+          CO_FIELD_KEY="$(openssl rand -base64 32)"
+          GRAFANA_PASSWORD="grafana_$(openssl rand -hex 8)"
+
+          # .env.example 里是 change_me_*，直接替换整行
+          sed -i "s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}|" deploy/.env
+          sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=${DB_PASSWORD}|" deploy/.env
+          sed -i "s|^CO_FIELD_KEY=.*|CO_FIELD_KEY=${CO_FIELD_KEY}|" deploy/.env
+          sed -i "s|^GRAFANA_PASSWORD=.*|GRAFANA_PASSWORD=${GRAFANA_PASSWORD}|" deploy/.env
+          sed -i "s|^COOKIE_SECURE=.*|COOKIE_SECURE=false|" deploy/.env
+          sed -i "s|^WEB_PORT=.*|WEB_PORT=${WEB_PORT}|" deploy/.env
+
+          # 只打印键名，不打印值
+          cut -d= -f1 deploy/.env | grep -v '^#' | grep -v '^$'
+
+      - name: 校验 compose 配置
+        run: docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env config -q && echo "compose config OK"
+
+      - name: 构建并启动全栈
+        run: |
+          docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env up -d --build
+          docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env ps
+
+      - name: 等待后端 healthy（最多 6 分钟）
+        run: |
+          for i in $(seq 1 36); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' co-backend-prod 2>/dev/null || echo missing)
+            echo "[$i] backend=$status"
+            [ "$status" = "healthy" ] && exit 0
+            sleep 10
+          done
+          echo "::error::后端健康检查未通过"
+          docker logs --tail 200 co-backend-prod
+          exit 1
+
+      - name: 健康检查与登录闭环
+        run: |
+          set -euo pipefail
+          BASE="http://localhost:${WEB_PORT}"
+          JAR="$(mktemp)"
+
+          echo "── 1. nginx 首页 ──"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/")
+          echo "GET / -> $code"; [ "$code" = "200" ]
+
+          echo "── 2. SPA 回退（前端路由不 404）──"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/questions")
+          echo "GET /questions -> $code"; [ "$code" = "200" ]
+
+          echo "── 3. 后端健康（经 nginx 反代）──"
+          curl -fsS "$BASE/actuator/health" | tee /tmp/health.json
+          grep -q '"status":"UP"' /tmp/health.json
+
+          echo "── 4. 取 CSRF ──"
+          curl -sS -c "$JAR" -b "$JAR" "$BASE/api/v1/auth/csrf" -o /dev/null
+          XSRF=$(awk '/XSRF-TOKEN/{print $7}' "$JAR" | tail -1)
+          [ -n "$XSRF" ] || { echo "::error::没拿到 XSRF-TOKEN"; exit 1; }
+
+          echo "── 5. 注册 ──"
+          code=$(curl -s -o /tmp/reg.json -w '%{http_code}' -c "$JAR" -b "$JAR" \
+            -H "Content-Type: application/json" -H "X-XSRF-TOKEN: $XSRF" \
+            -d '{"username":"20269001","displayName":"冒烟测试","email":"smoke@campus.edu","password":"Campus2026","college":"计算机工程学院","className":"计科2301"}' \
+            "$BASE/api/v1/auth/register")
+          echo "POST /auth/register -> $code"; [ "$code" = "201" ] || [ "$code" = "200" ]
+
+          echo "── 6. 登录（这里就是 Secure Cookie 那个坑的验证点）──"
+          curl -sS -c "$JAR" -b "$JAR" "$BASE/api/v1/auth/csrf" -o /dev/null
+          XSRF=$(awk '/XSRF-TOKEN/{print $7}' "$JAR" | tail -1)
+          code=$(curl -s -o /dev/null -w '%{http_code}' -c "$JAR" -b "$JAR" \
+            -H "Content-Type: application/json" -H "X-XSRF-TOKEN: $XSRF" \
+            -d '{"username":"20269001","password":"Campus2026"}' "$BASE/api/v1/auth/login")
+          echo "POST /auth/login -> $code"; [ "$code" = "200" ] || [ "$code" = "204" ]
+
+          echo "── 7. 带会话访问 /auth/me ──"
+          code=$(curl -s -o /tmp/me.json -w '%{http_code}' -b "$JAR" "$BASE/api/v1/auth/me")
+          echo "GET /auth/me -> $code"
+          cat /tmp/me.json; echo
+          [ "$code" = "200" ] || { echo "::error::登录后 /auth/me 不是 200，检查 COOKIE_SECURE 与 nginx 转发"; exit 1; }
+          grep -q "20269001" /tmp/me.json
+
+      - name: 容器状态与日志（失败时）
+        if: failure()
+        run: |
+          docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env ps || true
+          for c in co-mysql-prod co-redis-prod co-backend-prod co-web-prod; do
+            echo "──── $c ────"
+            docker logs --tail 120 "$c" 2>&1 || true
+          done
+
+      - name: 清理
+        if: always()
+        run: |
+          docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env down -v || true
+          docker image prune -f || true
