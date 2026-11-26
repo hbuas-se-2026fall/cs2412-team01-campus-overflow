@@ -114,7 +114,7 @@ CI 通过后又在开发机上完整跑了一遍，目的有两个：确认编�
 | WSL | `wsl --install --no-distribution`（提示需重启，实测未重启即可用） |
 | Docker Desktop | `winget install Docker.DockerDesktop` → 29.9.3，Linux 容器，16 核 / 6.7 GB |
 | 坑 1 | `error getting credentials ... "docker-credential-desktop" not found`：该助手在 `C:\Program Files\Docker\Docker\resources\bin`，不在 PATH |
-| 坑 2 | `dial tcp 185.45.7.185:443`：`registry-1.docker.io` 被解析到错误 IP，在 `~/.docker/daemon.json` 加 `registry.m.daocloud.io` 加速源后正常 |
+| 坑 2 | `dial tcp 185.45.7.185:443`：`registry-1.docker.io` 被解析到错误 IP，在 `~/.docker/daemon.json` 加 `https://docker.m.daocloud.io` 加速源后正常 |
 
 ### 构建与启动
 
