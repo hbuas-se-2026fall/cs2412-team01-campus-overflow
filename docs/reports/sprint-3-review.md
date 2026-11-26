@@ -33,18 +33,21 @@
 > 见 [run #152](https://github.com/hbuas-se-2026fall/cs2412-team01-campus-overflow/actions/runs/45343979685)。
 > 完整部署链路的实测记录见 [deploy-smoke.md](deploy-smoke.md)。
 
+> 第 8 条（幂等）现场不点界面：直接打开最近一次 `e2e` job 的日志，指 `Tests run: 4`，
+> 再说明「同一事件投递两次只生效一次」由 `CampusOverflowFlowIT` 的重放用例覆盖。
+
 **A 小计**：______ / 40 × 50% = ______
 
 ## B. 协作证据（权重 30%）
 
 | # | 核查项（9.1） | 核查方式 | 现状 | 分 |
 | --: | :-- | :-- | :-- | --: |
-| 1 | 代码提交历史 | `git log --graph`，看提交分布 | 11-20 之后 `develop` 仅 3 个提交（#116/#117/#119），集中在 2 天 | |
-| 2 | 贡献者维度 | Insights → Contributors | `jingmo2233` 约 66%；`fxs0917`/`yttt697`/`llll-b01` 低于团队平均 50% | |
+| 1 | 代码提交历史 | `git log --graph`，看提交分布 | 11-20 ~ 11-26 共 10 个提交、7 个 PR，集中在两个批次：11-24（e2e 进 CI）与 11-26（发布前收尾） | |
+| 2 | 贡献者维度 | Insights → Contributors | `jingmo2233` 58.1%（126/217 提交），其余四人 16.6% / 11.1% / 11.1% / 3.2%，均低于团队平均 20% | |
 | 3 | PR 与 Code Review | 抽查 3–5 个已合并 PR | #119 有 `xy1897` 的实质评审与 `yttt697` 的自测记录；文档 PR 多为单审 | |
 | 4 | Issue 使用 | Projects / Milestone 完成率 | 48 条 PBI 有 Issue 与验收标准；S3 的 9 条已关但无站会记录支撑 | |
 | 5 | 分支策略 | 分支列表 + 保护规则 | `main`/`develop` 各需 1 个 approve；历史分支有残留（合并后未删） | |
-| 6 | CI/CD 状态 | Actions 页面 | 单元测试 + ArchUnit + 前端 + **端到端**四段；无一键部署流水线 | |
+| 6 | CI/CD 状态 | Actions 页面 | 单元测试 + ArchUnit + 前端 + **端到端**四段；另有 `Deploy Smoke` 冒烟（#124），但还没有自动发布到真实主机的流水线 | |
 
 **B 小计**：______ / 30 × 30% = ______
 
