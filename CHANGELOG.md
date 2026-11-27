@@ -5,7 +5,31 @@
 
 ## [Unreleased]
 
-Sprint 3（内容发现与端到端贯通）进行中，计划版本 `v0.9.0`。
+Sprint 4（稳定化与发布）尚未开始，目标版本 `v1.0.0`（计划 2026-12-10）。
+
+## [0.9.0] - 2026-11-28
+
+Sprint 3 交付点（发布候选），对应提交 `515b87c`，GitHub pre-release。
+本版不是新写功能，而是把已经落地的搜索 / 相关推荐 / 通知三条链路**验证一遍**并纳入 CI 门禁。
+完整说明见 [`docs/release/v0.9.0.md`](docs/release/v0.9.0.md)。
+
+### 新增
+- 端到端测试进入 CI：独立的 `e2e` job 用 Testcontainers 起 MySQL 8 + Redis 7，跑 `CampusOverflowFlowIT`（#119）
+- 部署冒烟工作流：在 runner 上跑一遍 `docker-compose.prod.yml`，验证到「注册 → 登录 → `/auth/me` 200」（#124）
+- CI 按变更范围裁剪：纯文档 PR 不再装 JDK、跑 9 个模块的 `verify`；判定失败时兜底全量，主干 push 无条件全量（#120）
+- 后端 job 上传 JaCoCo 站点与 surefire 报告为 artifact，保留 30 天（#120）
+- `frontend/package-lock.json`，CI 与前端镜像改用 `npm ci`（#131）
+- 追踪矩阵 `docs/backlog/traceability.md`：48 条 PBI 的 Issue / PR / 测试 / 版本对应关系（#126）
+- `docs/reports/deploy-smoke.md`、`docs/reports/sprint-3-review.md`（#128、#129）
+
+### 修复
+- 后端镜像 `COPY` 的 jar 名与 pom `<finalName>` 不一致，容器报 `Unable to access jarfile app.jar`（#124）
+- `prod` 的 Secure Cookie 改为可被 `COOKIE_SECURE` 覆盖，便于纯 HTTP 环境演示（#123）
+
+### 变更
+- `develop` 分支保护启用必需状态检查：`后端构建与验证`、`前端构建`、`端到端测试`
+- `ADR-009` 状态改为「已完成」
+- 领域层覆盖率门禁维持 0.75（`co-discovery-domain` 已补至 100%）
 
 ## [0.3.0] - 2026-11-19
 
