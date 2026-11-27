@@ -42,7 +42,7 @@
 | PB-35 | 评论中被 @ 时我会收到提醒（每条最多 5 人） | S3 | Should | 3 | #23 | — | `CommentServiceTest` | v0.9.0 | 🟡 已完成待验收 |
 | PB-36 | 查看通知列表、未读数，并标记单条或全部已读 | S3 | Must | 3 | #105 | — | `NotificationProjectorBoundaryAndOwnershipTest`、`NotificationProjectorTest`、`NotificationServiceTest` | v0.9.0 | 🟡 已完成待验收 |
 | PB-37 | 端到端集成测试全绿且领域覆盖率 ≥ 70% | S3 | Must | 3 | #26 | #67 | — | v0.9.0 | 🟡 待本地 Docker 验证 |
-| PB-38 | demo profile 能加载完整演示数据 | S3 | Should | 1 | #106 | — | — | v0.9.0 | 🟡 待验证 |
+| PB-38 | demo profile 能加载完整演示数据 | S3 | Should | 1 | #106 | #130 | — | v0.9.0 | ✅ 已完成（`demo` 实测：1 门课 / 6 账号 / 5 问题 / 1 悬赏；#130 又补两条跳表问题，供搜索与相关推荐演示） |
 | PB-39 | Discovery 应用层单元测试（验证投影幂等） | S3 | Must | 3 | #107 | — | `DiscoveryDomainTest`、`DiscoveryQueryServiceTest`、`DiscoveryQueryServiceViewMappingTest`、`DiscoverySearchAndNotificationBoundaryTest` | v0.9.0 | ✅ 已完成 |
 | PB-40 | 禁用违规账号并使其立即下线（ADR-003） | S4 | Should | 5 | #108 | #60、#61、#121 | `UserTest`、`AdminUserServiceTest`、`CampusOverflowFlowIT`、`DisableUserSessionRevocationIT` | v1.0.0 | ✅ 已完成（会话立即失效由 #121 的 `DisableUserSessionRevocationIT` 端到端覆盖） |
 | PB-41 | 查看和修改个人资料（学院、班级） | S4 | Could | 3 | #109 | — | `IdentityApiImplTest` | v1.0.0 | ⬜ 未开始 |
