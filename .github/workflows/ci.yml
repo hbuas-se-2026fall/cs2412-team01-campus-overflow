@@ -161,7 +161,7 @@ jobs:
 
       - name: 安装依赖
         working-directory: ./frontend
-        run: npm install # 用 install 替代 ci，避免强制要求 package-lock.json
+        run: npm ci --no-audit --no-fund
 
       - name: 构建
         working-directory: ./frontend
