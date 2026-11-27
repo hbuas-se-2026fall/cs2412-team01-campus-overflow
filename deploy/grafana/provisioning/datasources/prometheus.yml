@@ -1,0 +1,16 @@
+# Grafana 数据源自动配置（PB-44）
+# 由 docker-compose.prod.yml 挂载到 /etc/grafana/provisioning/datasources
+# uid 固定为 prom，仪表盘 JSON 里按 uid 引用，避免重装后 ID 变化导致面板失效。
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prom
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST

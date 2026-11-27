@@ -1,0 +1,248 @@
+{
+  "uid": "campus-overflow-overview",
+  "title": "CampusOverflow 运行概览",
+  "tags": ["campus-overflow", "sprint-4"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "发件箱积压",
+      "description": "未投递的 outbox_event 条数。持续 > 100 超过 5 分钟应告警（事件链路被堵）。",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        { "refId": "A", "expr": "co_outbox_backlog", "instant": true, "legendFormat": "积压" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 50 },
+              { "color": "red", "value": 100 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "死信事件",
+      "description": "重试超过 10 次仍失败的事件数（co_outbox_dead_letters）。> 0 必须人工介入。",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        { "refId": "A", "expr": "co_outbox_dead_letters", "instant": true, "legendFormat": "死信" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "声誉对账不一致",
+      "description": "账户余额与账本流水之和不一致的账户数（FF-8）。应恒为 0。",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        { "refId": "A", "expr": "co_reputation_mismatches", "instant": true, "legendFormat": "不一致账户" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "接口平均延迟",
+      "description": "近 5 分钟所有接口的平均耗时（sum/count）。开启 percentiles-histogram 后可换成真 P95。",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_requests_seconds_sum[5m])) / clamp_min(sum(rate(http_server_requests_seconds_count[5m])), 0.0001)",
+          "instant": true,
+          "legendFormat": "平均"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.3 },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "发件箱积压趋势",
+      "description": "积压随时间变化；出现持续上升说明有监听器抛异常堵住了投递。",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        { "refId": "A", "expr": "co_outbox_backlog", "legendFormat": "积压" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short", "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10 } },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "事件投递速率",
+      "description": "每秒成功投递与失败的事件数。失败率上升通常是消费端幂等或事务问题。",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        { "refId": "A", "expr": "rate(co_outbox_published_total[5m])", "legendFormat": "成功投递/s" },
+        { "refId": "B", "expr": "rate(co_outbox_failed_total[5m])", "legendFormat": "失败/s" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10 } },
+        "overrides": []
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "接口延迟（按 URI）",
+      "description": "各接口平均耗时。指导书 QS-01 要求详情页 P95 ≤ 300ms。",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (uri) (rate(http_server_requests_seconds_sum[5m])) / clamp_min(sum by (uri) (rate(http_server_requests_seconds_count[5m])), 0.0001)",
+          "legendFormat": "{{uri}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "decimals": 3, "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 0 } },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "请求速率（按 URI）",
+      "description": "各接口 QPS，用于判断演示时的负载来源。",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (uri) (rate(http_server_requests_seconds_count[5m]))",
+          "legendFormat": "{{uri}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 } },
+        "overrides": []
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "JVM 堆内存与 CPU",
+      "description": "进程内存与 CPU 使用率，用于排查 OOM 与跑满。",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"})",
+          "legendFormat": "堆已用"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(jvm_memory_max_bytes{area=\"heap\"})",
+          "legendFormat": "堆上限"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes", "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10 } },
+        "overrides": []
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "进程 CPU 使用率",
+      "description": "process_cpu_usage，0–1 之间。",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "targets": [
+        { "refId": "A", "expr": "process_cpu_usage", "legendFormat": "CPU" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10 } },
+        "overrides": []
+      }
+    }
+  ]
+}
