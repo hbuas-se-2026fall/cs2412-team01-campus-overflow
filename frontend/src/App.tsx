@@ -9,6 +9,7 @@ import { LoginPage } from './pages/LoginPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { CoursePage } from './pages/CoursePage';
+import { ProfilePage } from './pages/ProfilePage';
 
 function Header() {
   const { me, logout } = useAuth();
@@ -31,6 +32,7 @@ function Header() {
         <Link to="/courses">课程</Link>
         <Link to="/leaderboard">排行榜</Link>
         {me && <Link to="/notifications">通知{unread > 0 && <span className="badge">{unread}</span>}</Link>}
+        {me && <Link to="/profile">我的资料</Link>}
       </nav>
       <div className="spacer" />
       {me ? (
@@ -66,6 +68,7 @@ export function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
+            <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
           </Routes>
         </main>
       </AuthProvider>
