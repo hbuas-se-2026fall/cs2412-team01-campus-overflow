@@ -20,8 +20,88 @@ env:
   SPRINT_MODULES: co-shared-kernel, co-identity/co-identity-domain, co-identity/co-identity-application, co-qa/co-qa-domain, co-qa/co-qa-application, co-reputation/co-reputation-domain, co-reputation/co-reputation-application, co-discovery/co-discovery-domain, co-discovery/co-discovery-application
 
 jobs:
+  # 判断这次改动落到哪一块，避免「改一个 .md 也装 JDK、跑 9 个模块的 verify」。
+  #
+  # 用 job 级 if 而不是 on.push.paths-ignore：
+  # workflow 级跳过会让整个 run 消失，将来一旦把某个 job 设成 required status check，
+  # PR 会永远停在 “Expected” 状态合不进去。job 被 if 跳过时状态是 skipped，
+  # required check 视为已满足，这样两头都不吃亏。
+  changes:
+    name: 变更范围
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.diff.outputs.backend }}
+      frontend: ${{ steps.diff.outputs.frontend }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # 需要完整历史才能跟 base 做 diff
+          fetch-depth: 0
+
+      - name: 计算变更范围
+        id: diff
+        run: |
+          set +e
+          changed=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+            changed=$(git diff --name-only "$base"...HEAD 2>/dev/null)
+          else
+            base="${{ github.event.before }}"
+            if [ -n "$base" ] && [ "$base" != "0000000000000000000000000000000000000000" ] \
+               && git rev-parse --verify "$base" >/dev/null 2>&1; then
+              changed=$(git diff --name-only "$base" HEAD 2>/dev/null)
+            else
+              # 新分支 / force push 之后拿不到 before，退回跟上一个提交比
+              changed=$(git diff --name-only "HEAD~1" HEAD 2>/dev/null)
+            fi
+          fi
+
+          # 只改这些路径不算代码变更
+          backend=false
+          frontend=false
+          unknown=false
+
+          if [ -z "$changed" ]; then
+            # 算不出来就保守处理：都跑一遍，宁可多烧一点额度也别漏检
+            unknown=true
+          fi
+
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              docs/*|*.md|scripts/*|.github/ISSUE_TEMPLATE/*)
+                ;;
+              frontend/*)
+                frontend=true
+                ;;
+              *)
+                backend=true
+                ;;
+            esac
+          done <<< "$changed"
+
+          if [ "$unknown" = "true" ]; then
+            backend=true
+            frontend=true
+          fi
+
+          echo "变更文件："
+          echo "$changed"
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+
+  # 下面三个 job 的 if 都写成「判断失败就兜底跑」，而不是单纯的 outputs 判断。
+  # 原因：needs 的上游 job 失败时，下游默认被跳过，状态是 skipped，
+  # 而 skipped 在分支保护里算通过 —— 那就成了「CI 绿了但什么都没跑」。
+  # 主干（main/push）无条件全量跑：发布合并往往只同步文档，跳过会让主干最新提交
+  # 没有构建记录，评审时不好解释（指导书 9.1 要求主干最新提交为绿色）。
   backend:
     name: 后端构建与验证
+    needs: changes
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || needs.changes.result != 'success' || needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -47,8 +127,26 @@ jobs:
       - name: 架构约束检查
         run: mvn -B -f backend/pom.xml test -pl co-bootstrap -Dtest=ArchitectureTest
 
+      # 指导书 9.4 要求提交测试报告与覆盖率报告。CI 里本来就已经生成了 JaCoCo 站点，
+      # 之前只在 runner 上待一会儿就没了，现在留档 14 天，报告里可以直接引 artifact 链接。
+      - name: 上传覆盖率与测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: |
+            backend/co-identity/co-identity-domain/target/site/jacoco/
+            backend/co-qa/co-qa-domain/target/site/jacoco/
+            backend/co-reputation/co-reputation-domain/target/site/jacoco/
+            backend/co-discovery/co-discovery-domain/target/site/jacoco/
+            backend/**/target/surefire-reports/*.txt
+          retention-days: 30
+          if-no-files-found: warn
+
   frontend:
     name: 前端构建
+    needs: changes
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || needs.changes.result != 'success' || needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -63,8 +161,56 @@ jobs:
 
       - name: 安装依赖
         working-directory: ./frontend
-        run: npm install # 用 install 替代 ci，避免强制要求 package-lock.json
+        run: npm ci --no-audit --no-fund
 
       - name: 构建
         working-directory: ./frontend
         run: npm run build
+
+  # 端到端测试：用 Testcontainers 起 MySQL 8 + Redis 7，跑 CampusOverflowFlowIT。
+  # 放在独立 job 里而不是塞进 backend：
+  #   1) backend 用 -pl "$SPRINT_MODULES" 只选 9 个模块，co-bootstrap 不在 reactor 里；
+  #   2) 起容器的开销不该让单元测试跟着等，并行跑两个 job 总时长基本不变。
+  # ubuntu-latest runner 自带 Docker，Testcontainers 可以直接用，不需要 service container。
+  #
+  # 这里刻意不加 -am：第一步 install -DskipTests 已把全部 SNAPSHOT 装进本地仓库，
+  # co-bootstrap 的依赖能直接从本地仓库解析。加了 -am 会把 14 个上游模块重新编译、
+  # 重跑一遍 surefire 与 JaCoCo check，与 backend job 完全重复，还会让「单测红了」
+  # 和「端到端红了」混在同一个 job 里。
+  # 代价是 co-bootstrap 自己的 ArchitectureTest 也会跑一次（1 个用例，约 3.5 s），可以接受。
+  # 另注：不要试图用 -Dsurefire.skip=true 省掉单测——surefire 认的是 skipTests / maven.test.skip，
+  # 这个属性会被静默忽略，改了等于没改。
+  e2e:
+    name: 端到端测试
+    needs: changes
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || needs.changes.result != 'success' || needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # co-bootstrap 依赖其它模块的 SNAPSHOT，先装进本地仓库
+      - name: 安装所有依赖模块 (跳过测试)
+        run: mvn -B -f backend/pom.xml install -DskipTests
+
+      # 注意这里不带 -DskipITs：failsafe 在 verify 阶段执行 *IT 结尾的类
+      - name: 端到端集成测试 (Testcontainers)
+        run: mvn -B -f backend/pom.xml verify -pl co-bootstrap
+
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-reports
+          path: |
+            backend/co-bootstrap/target/surefire-reports/
+            backend/co-bootstrap/target/failsafe-reports/
+          if-no-files-found: warn

@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 演示数据（仅 demo profile 生效）：一门课、6 个账号、3 个问题，覆盖提问→回答→投票→认证→采纳→评论→悬赏全链路。
+ * 演示数据（仅 demo profile 生效）：一门课、6 个账号、5 个问题，覆盖提问→回答→投票→认证→采纳→评论→悬赏全链路。
  * 课堂演示与验收时可直接登录查看效果；所有账号密码均为 {@value #PASSWORD}。
  */
 @Component
@@ -137,6 +137,23 @@ public class DemoDataSeeder implements ApplicationRunner {
                 想知道它的分词粒度 `ngram_token_size` 如何影响检索效果和索引体积？
                 """, List.of("mysql", "全文检索")));
 
-        log.info("演示数据初始化完成：管理员 admin01 / 教师 T2001 / 助教 TA3001 / 学生 2023001-2023003，密码 {}", PASSWORD);
+        // 与 q1 共享标签，使搜索“跳表”可命中、q1 详情页的相关问题栏有内容（PB-31 / PB-33）
+        long q4 = questions.post(gang, new PostQuestionCommand(courseId, "跳表和红黑树在工程上应该怎么取舍？",
+                """
+                课程项目需要一个有序集合，跳表和红黑树的查找复杂度都是 O(log n)，
+                但实现难度和并发友好程度差别很大。实际工程里一般怎么选？
+                """, List.of("数据结构", "红黑树", "跳表")));
+        answers.submit(ming, q4, """
+                并发场景优先**跳表**：插入删除只改局部指针，容易做成无锁结构，Java 的 `ConcurrentSkipListMap` 就是例子；
+                单线程、内存敏感的场景用**红黑树**更省空间，`TreeMap` 就是红黑树实现。
+                """);
+
+        questions.post(hong, new PostQuestionCommand(courseId, "跳表的层数为什么用随机数决定？",
+                """
+                跳表插入时用抛硬币的方式决定新节点的层数，为什么不按固定规则分层？
+                随机化之后最坏情况会不会退化成链表？
+                """, List.of("数据结构", "跳表")));
+
+        log.info("演示数据初始化完成：1 门课 / 6 账号 / 5 问题；管理员 admin01 / 教师 T2001 / 助教 TA3001 / 学生 2023001-2023003，密码 {}", PASSWORD);
     }
 }
