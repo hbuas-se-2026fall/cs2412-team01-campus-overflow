@@ -1,6 +1,7 @@
 package com.campusoverflow;
 
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -236,6 +237,47 @@ class CampusOverflowFlowIT {
         // 被禁用的账号再次登录失败
         mvc.perform(post("/api/v1/auth/login").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"2026020\",\"password\":\"Campus2026\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void 我的资料可以修改学院与班级而身份字段保持不变() throws Exception {
+        register("2026030", "测试小舟", "it-profile@campus.edu.cn");
+        MockHttpSession zhou = login("2026030");
+
+        // 只改班级：学院保持原值，学号/昵称不被改动
+        mvc.perform(put("/api/v1/auth/me").session(zhou).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"className\":\"软工2302\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.className").value("软工2302"))
+                .andExpect(jsonPath("$.college").value("计算机工程学院"))
+                .andExpect(jsonPath("$.username").value("2026030"))
+                .andExpect(jsonPath("$.displayName").value("测试小舟"));
+
+        // 请求体夹带身份字段：被忽略，不能自助改昵称
+        mvc.perform(put("/api/v1/auth/me").session(zhou).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"displayName\":\"被别人改了\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("测试小舟"));
+
+        // 清空学院：再次 GET 应看到 null，班级保留
+        mvc.perform(put("/api/v1/auth/me").session(zhou).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"college\":\"\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.college").value(nullValue()));
+
+        mvc.perform(get("/api/v1/auth/me").session(zhou))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.college").value(nullValue()))
+                .andExpect(jsonPath("$.className").value("软工2302"));
+
+        // 未登录 → 401
+        mvc.perform(put("/api/v1/auth/me").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"className\":\"x\"}"))
                 .andExpect(status().isUnauthorized());
     }
 
