@@ -7,7 +7,7 @@
 | :-- | :-- | :--: | :-- | --: | :--: | :-- | :-- | :--: | :-- |
 | PB-01 | 教师组织中的本组私有仓库、受保护分支、Issue/PR 模板与看板 | S0 | Must | 3 | #24 | — | — | v0.1.0 | 🟡 模板与 CODEOWNERS 已补，待评审确认 |
 | PB-02 | 一键启动 MySQL/Redis/后端/前端并跑通测试 | S0 | Must | 2 | #86 | — | — | v0.1.0 | ✅ 已验收 |
-| PB-03 | 事件风暴产出的统一语言与上下文映射 | S0 | Must | 3 | #87 | — | — | v0.1.0 | 🟡 三件套已补，待评审 |
+| PB-03 | 事件风暴产出的统一语言与上下文映射 | S0 | Must | 3 | #87 | — | — | v0.1.0 | ✅ 已完成（术语表 v2.0 按代码复核，修正上下文映射与时序图，#87） |
 | PB-04 | 渐进式 CI 门禁 | S0 | Must | 2 | #25 | — | — | v0.1.0 | 🟡 缺覆盖率/集成测试/镜像阶段 |
 | PB-05 | 注册、登录并在课程页面浏览和加入课程 | S0 | Must | 3 | #88 | — | `IdentityApiImplTest` | v0.1.0 | ✅ 已验收 |
 | PB-06 | 发布带标签、可关联课程的问题 | S1 | Must | 5 | #10 | — | `MarkdownBodyTest`、`QuestionCommandServiceTest`、`QuestionControllerTest`、`QuestionQueryServiceTest` | v0.2.0 | ✅ 已验收 |

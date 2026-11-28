@@ -42,10 +42,9 @@ flowchart LR
     QA -->|"Conformist<br/>异步事件"| DIS
     REP -->|"Conformist<br/>异步事件"| DIS
     QA -.->|"QaQueryApi.findQuestion"| REP
-    REP -.->|"ReputationApi（只读）"| QA
 ```
 
-> 实线 = 主要集成方向（上游 → 下游）；虚线 = 只读的同步查询。橙色（异步）与蓝色（同步）在答辩 PPT 中用颜色区分。
+> 实线 = 主要集成方向（上游 → 下游）；虚线 = 只读的同步查询。Q&A 不依赖任何下游上下文（`co-qa-*` 的 pom 不引用 `co-reputation-api`），FF-3 无环由此保证；`ReputationApi` 目前只供本上下文的接口层使用。橙色（异步）与蓝色（同步）在答辩 PPT 中用颜色区分。
 
 ## 3. 关系明细
 
