@@ -3,16 +3,16 @@
 > 《软件工程》课程贯穿项目 ｜ 团队 cs2412-team01 ｜ 模块化单体 × DDD × Scrum × GitHub 协作
 > Java 21 · Spring Boot 3.4 · MySQL 8 · Redis 7 · React 18 · GitHub Actions
 
-## 0. 项目状态（2026-11-19）
+## 0. 项目状态（2026-11-28）
 
 | 项 | 状态 |
 | :-- | :-- |
 | 待实现方法 | **0 / 107**（起始代码的 107 个 `TODO(Sx)` 已全部清零） |
-| 测试 | 54 个测试文件（领域 + 应用 + 契约 + 端到端），`develop` 上 CI 绿 |
+| 测试 | 61 个测试类（领域 + 应用 + 契约 + 端到端），`develop` 上 CI 绿（含独立 `e2e` job） |
 | 领域层覆盖率门禁 | **0.75**（`backend/pom.xml` 的 `domain.coverage.minimum`，`haltOnFailure=true`） |
 | 架构约束 | ArchUnit FF-1~FF-6 全绿（无框架侵入、无跨上下文越界、无环） |
-| 当前 Sprint | S2 声誉与激励（11-06 ~ 11-19，**待评审**）→ S3 内容发现（11-20 起） |
-| 交付版本 | `v0.1.0`（S0）、`v0.2.0`（S1）；`v0.3.0` / `v0.9.0` / `v1.0.0` 待创建 |
+| 当前 Sprint | S3 内容发现（11-20 ~ 12-03，**评审待开**）→ S4 稳定化（12-04 起） |
+| 交付版本 | `v0.1.0`（S0）、`v0.2.0`（S1）、`v0.3.0`（S2）、`v0.9.0`（S3 RC，pre-release）；`v1.0.0` 计划 12-10 |
 
 ## 1. 快速开始
 
@@ -69,7 +69,7 @@ cd ../frontend && npm install && npm run dev      # http://localhost:5173
 | 领域模型、上下文映射、事件目录 | [docs/ddd/](docs/ddd/) |
 | 架构决策（10 条 ADR） | [docs/adr/](docs/adr/README.md) |
 | 错误码与 HTTP 状态映射 | [docs/错误码.md](docs/错误码.md) |
-| 发布说明 | [docs/release/](docs/release/)（v0.1.0 ~ v0.3.0，索引见 [README](docs/release/README.md)） |
+| 发布说明 | [docs/release/](docs/release/)（v0.1.0 ~ v0.9.0，索引见 [README](docs/release/README.md)） |
 | 版本变更日志 | [CHANGELOG.md](CHANGELOG.md) |
 | 部署与运维 | [deploy/README.md](deploy/README.md) |
 | 起始代码的 107 个 TODO 清单（历史存档） | [docs/学生任务清单.md](docs/学生任务清单.md) |
