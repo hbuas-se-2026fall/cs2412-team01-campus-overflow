@@ -31,8 +31,8 @@ public class User {
     private Role role;
     private UserStatus status;
     private boolean verified;
-    private final String college;
-    private final String className;
+    private String college;
+    private String className;
     private final Instant createdAt;
     private final long version;
 
@@ -80,9 +80,17 @@ public class User {
                 className, createdAt, version);
     }
 
+    /**
+     * 本人自助修改资料：只允许改学院与班级（学号、昵称、邮箱属于身份凭据，不在此用例内）。
+     * <p>空白值会被归一化为 {@code null}（表示清空），超长值截断到 50 字符，与注册时的规则一致。</p>
+     */
+    public void updateProfile(String college, String className) {
+        this.college = optional(college, 50);
+        this.className = optional(className, 50);
+    }
+
     /** 管理员完成校园身份认证。 */
-    public void verify(Actor actor) {
-        requireAdmin(actor);
+    public void verify(Actor actor) {        requireAdmin(actor);
         if (verified) {
             throw new ConflictException("ID-2006", "该用户已完成认证");
         }

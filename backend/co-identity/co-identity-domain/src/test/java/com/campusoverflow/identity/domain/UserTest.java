@@ -104,4 +104,34 @@ class UserTest {
         assertThatThrownBy(() -> PasswordPolicy.validate("onlyletters")).isInstanceOf(BusinessRuleException.class);
         PasswordPolicy.validate("Passw0rd!");
     }
+
+    @Test
+    void updateProfileNormalizesBlankAndTruncatesLongValues() {
+        User u = newStudent();
+
+        u.updateProfile("  软件工程学院  ", "   ");
+        assertThat(u.college()).isEqualTo("软件工程学院");
+        assertThat(u.className()).isNull();
+
+        u.updateProfile(null, "一".repeat(60));
+        assertThat(u.college()).isNull();
+        assertThat(u.className()).hasSize(50);
+    }
+
+    @Test
+    void updateProfileKeepsIdentityFieldsUntouched() {
+        User u = newStudent();
+        u.assignId(7);
+
+        u.updateProfile("软件工程学院", "软工2302");
+
+        assertThat(u.college()).isEqualTo("软件工程学院");
+        assertThat(u.className()).isEqualTo("软工2302");
+        assertThat(u.username()).isEqualTo("2023001217");
+        assertThat(u.displayName()).isEqualTo("小明");
+        assertThat(u.email()).isEqualTo("ming@campus.edu");
+        assertThat(u.role()).isEqualTo(Role.STUDENT);
+        assertThat(u.verified()).isFalse();
+        assertThat(u.status()).isEqualTo(UserStatus.ACTIVE);
+    }
 }
