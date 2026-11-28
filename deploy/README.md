@@ -52,6 +52,34 @@ Prometheus（9090）与 Grafana（3000）只绑定服务器本机，本机访问
 ssh -L 9090:127.0.0.1:9090 -L 3000:127.0.0.1:3000 <user>@<服务器IP>
 ```
 
+### Grafana 面板（PB-44）
+
+数据源与面板都**代码化**在 `grafana/` 下，容器重建或换机器后开箱即用，不需要手工点：
+
+| 路径 | 用途 |
+| --- | --- |
+| `grafana/provisioning/datasources/prometheus.yml` | 自动注册 Prometheus 数据源（uid 固定为 `prom`，免得重装后仪表盘引用失效） |
+| `grafana/provisioning/dashboards/dashboards.yml` | 扫描 `/var/lib/grafana/dashboards` 自动加载 JSON |
+| `grafana/dashboards/campus-overflow.json` | 「CampusOverflow 运行概览」仪表盘 |
+
+打开 Grafana（`admin` / `.env` 里的 `GRAFANA_PASSWORD`）→ 左侧 **CampusOverflow** 文件夹 → 「CampusOverflow 运行概览」。
+
+面板内容与告警口径：
+
+| 面板 | 指标 | 判读 |
+| --- | --- | --- |
+| 发件箱积压 | `co_outbox_backlog` | 持续 > 100 超过 5 分钟 → 事件链路被堵 |
+| 死信事件 | `co_outbox_dead_letters` | **> 0 必须人工介入**（重试超 10 次） |
+| 声誉对账不一致 | `co_reputation_mismatches` | 应恒为 0（FF-8） |
+| 接口平均延迟 | `rate(http_server_requests_seconds_sum) / rate(..._count)` | > 300 ms 关注，> 1 s 报警（QS-01 要求详情页 P95 ≤ 300ms） |
+| 事件投递速率 | `rate(co_outbox_published_total[5m])` 等 | 失败率上升多为消费端事务/幂等问题 |
+| JVM 堆与 CPU | `jvm_memory_used_bytes`、`process_cpu_usage` | 排查 OOM 与跑满 |
+
+> 目前暴露的是 `_count` / `_sum` / `_max`，所以「接口延迟」用平均值口径。
+> 若要真 P95，需在 `application.yml` 打开
+> `management.metrics.distribution.percentiles-histogram.http.server.requests=true`，
+> 再把面板表达式换成 `histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket[5m])))`。
+
 ## 安全约定
 
 - 3306（MySQL）、6379（Redis）**不向宿主机暴露**，仅容器网络内互通
