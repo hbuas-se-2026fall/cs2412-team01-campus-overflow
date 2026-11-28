@@ -1,7 +1,7 @@
 # Sprint 3（2026-11-20 ~ 2026-12-03）· 内容发现与端到端贯通
 
 > Sprint 类型：开发冲刺（2 周）｜SM：张博（@llll-b01）｜PO：韦国超（@jingmo2233）
-> 版本标签：`v0.9.0`（RC，待创建）｜评审日期：【待填：Sprint 3 评审会日期】
+> 版本标签：`v0.9.0`（RC，2026-11-28 已创建 `515b87c`）｜评审日期：2026-12-03
 
 ## 1. Sprint Goal
 
@@ -26,13 +26,8 @@
 
 ## 3. 每日站会摘要
 
-| 日期 | 昨日完成 | 今日计划 | 阻碍 / 处理 |
-| :-- | :-- | :-- | :-- |
-| 11-20 | Sprint 2 评审与回顾、Sprint 3 计划会 | 认领 PB-31 ~ PB-39；建“移除行走骨架”专项 Issue | 【待填：SM 站会记录】 |
-| 11-24 | — | 领域策略（SearchQuery / RelatedQuestionPolicy / MentionParser） | 【待填】 |
-| 11-27 | — | 两个投影器（搜索、通知） | 【待填】 |
-| 12-01 | — | 端到端测试与 demo 数据 | 需本机 Docker（Testcontainers 拉 mysql:8.0.39 / redis:7-alpine） |
-| 12-03 | — | 评审彩排与 RC 发布 | 【待填】 |
+> S3 未逐日留存站会纪要；按提交/PR 时间线回填的站会表见 [../scrum/sprint-3.md §3](../scrum/sprint-3.md)。
+> 本文件不再重复维护该表，避免两份记录分叉。
 
 ## 4. 评审：演示结果与被接受/退回的 PBI
 
@@ -44,35 +39,35 @@
 - [ ] 回答、采纳、认证、悬赏获奖、获得徽章、被 @ 都产生通知；未读数正确；只能标记自己的通知（`DIS-3001`）
 - [ ] 同一事件投递两次只生效一次（搜索投影 / 通知 / 排行榜均幂等）
 - [ ] **行走骨架已全部移除**：`grep -rn "walking-skeleton" backend/` 无结果
-- [ ] CI 五个后端阶段 + 前端阶段全绿；领域覆盖率 ≥ 70%
-- [ ] `main` 打标签 `v0.9.0`
+- [ ] CI 后端各阶段 + 前端阶段全绿；领域覆盖率 ≥ 70%
+- [ ] `main` 打标签 `v0.9.0`（标签已于 11-28 创建，`main` 同步待 #137）
 
-**结论**：【待填：接受 X 条 / 退回 Y 条】　**教师反馈**：【待填】
+**结论**：待填（评审会 12-03 召开，会后回填）　**教师反馈**：待填
 
 ## 5. 数据
 
 | 指标 | 数值 | 来源 |
 | :-- | :-- | :-- |
-| 计划 / 完成点数 | 31 / 【待填】 | 看板 |
-| 速度 | 【待填】 | 本节 |
-| 燃尽图 | ![Sprint 3 燃尽图](burndown-sprint-3.png)（未开始，仅理想线；实际列见 [burndown-sprint-3.xlsx](burndown-sprint-3.xlsx)） | 本目录 |
-| 合并 PR 数 / 平均周转 | 【待填】 / 【待填】 | `git log --merges` |
-| CI 红灯次数 / 平均恢复 | 【待填】 | Actions |
-| 端到端测试 | `CampusOverflowFlowIT`：【待填：通过 / 未运行（缺 Docker）】 | `mvn verify` |
-| 领域覆盖率 | 【待填：co-discovery-domain __%，整体 __%】 | JaCoCo |
-| 版本标签 | `v0.9.0`【待创建并推送】 | `git tag` |
+| 计划 / 完成点数 | 31 / 31（9 条 PBI 全部实现；8 条 Issue 已关闭，PB-38 待关 #106） | 看板 |
+| 速度 | 31 点（S1 43、S2 42） | 本节 |
+| 燃尽图 | 未逐日采集；表与数据见 [../scrum/burndown/sprint-3.csv](../scrum/burndown/sprint-3.csv)（仅 11-20 计划值，S4 起补录） | 本目录 |
+| 合并 PR 数 / 平均周转 | 18 个 / 平均 18.5 h（11-20 ~ 11-28） | `git log --merges`、GitHub API |
+| CI 红灯次数 / 平均恢复 | 2 次 / 当日修复（`tmp/if-semantics` 探针不计） | Actions |
+| 端到端测试 | `e2e` job `Tests run: 6`（5 + 1），CI run `46030936902` | `mvn verify` |
+| 领域覆盖率 | 门禁 0.75 通过（`co-discovery-domain` 100%） | JaCoCo |
+| 版本标签 | `v0.9.0` 已创建（`515b87c`，2026-11-28，pre-release） | `git tag` |
 
-> **说明**：Discovery 的 32 个方法其实现提交发生在 10-27（`6c1f74a`），早于本 Sprint 窗口。本 Sprint 的真实工作应是**端到端验证、幂等测试与行走骨架清理**，请按实际活动补录 PR 与周转数据。
+> **说明**：Discovery 的 31 个方法其实现提交发生在 10-27（`6c1f74a`），早于本 Sprint 窗口。本 Sprint 的真实工作应是**端到端验证、幂等测试与行走骨架清理**，请按实际活动补录 PR 与周转数据。
 
 ## 6. 回顾
 
-完整纪要点见 [../retro/sprint-3.md](../retro/sprint-3.md)。待补充：
+站会与数据见 [../scrum/sprint-3.md](../scrum/sprint-3.md)；**回顾以本文件为准**，评审结论于 12-03 回填。待补充：
 
 | 维度 | 内容 |
 | :-- | :-- |
 | 做得好的 | 107 个 `TODO(Sx)` 全部清零；ArchUnit 全绿；投影与通知的幂等键设计一致（`processed_event` / `(source_event_id, recipient_id)`） |
-| 待改进 | 前端联调滞后于后端接口产出；本机 Docker/WSL 兼容性问题导致端到端演示无法录制；`deploy/` 未实测 |
-| 改进行动 | ① 以 Swagger 截图 + 覆盖率报告 + CI 绿作为验收凭证（已同步教师）；② 前后端联调与 `docker compose` 一键部署作为 Sprint 4 首要任务；③ 发布 `v1.0.0` 并更新 README —— 【待填：对应 Issue 号】 |
+| 待改进 | 前端联调滞后于后端接口产出；本机 Docker/WSL 兼容性问题导致端到端演示无法录制；`deploy/` 此前未实测（已由 #124 的部署冒烟补上） |
+| 改进行动 | ① 以 Swagger 截图 + 覆盖率报告 + CI 绿作为验收凭证（已同步教师）；② 前后端联调与 `docker compose` 一键部署作为 Sprint 4 首要任务（PB-46 / #27）；③ 发布 `v1.0.0` 并更新 README（Milestone「Sprint 4」跟踪） |
 
 ## 7. 证据链接
 
