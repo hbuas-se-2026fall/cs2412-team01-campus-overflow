@@ -19,7 +19,12 @@ preflight() {
   command -v docker >/dev/null || fail "未检测到 docker，请先安装 Docker Engine"
   docker info >/dev/null 2>&1 || fail "docker 守护进程不可用（当前用户是否在 docker 组？）"
   [ -f .env ] || fail "缺少 deploy/.env，请先执行: cp deploy/.env.example deploy/.env 并填写密码"
-  grep -q "change_me" .env && fail ".env 中仍存在 change_me 占位值，请先修改全部密码/密钥"
+  # 占位值有两类：change_me_*（密码）与 replace_with_*（CO_FIELD_KEY 在 .env.example 里的占位是
+  # replace_with_openssl_rand_base64_32）。只匹配 change_me 会漏掉后者，导致密钥没填也能通过检查。
+  if grep -Eq "change_me|replace_with" .env; then
+    grep -nE "change_me|replace_with" .env >&2
+    fail "上述变量仍是 .env.example 的占位值，请先修改（CO_FIELD_KEY 用 openssl rand -base64 32 生成）"
+  fi
 }
 
 deploy() {
