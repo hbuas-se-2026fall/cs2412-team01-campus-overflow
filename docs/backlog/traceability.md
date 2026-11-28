@@ -45,7 +45,7 @@
 | PB-38 | demo profile 能加载完整演示数据 | S3 | Should | 1 | #106 | #130 | — | v0.9.0 | ✅ 已完成（`demo` 实测：1 门课 / 6 账号 / 5 问题 / 1 悬赏；#130 又补两条跳表问题，供搜索与相关推荐演示） |
 | PB-39 | Discovery 应用层单元测试（验证投影幂等） | S3 | Must | 3 | #107 | — | `DiscoveryDomainTest`、`DiscoveryQueryServiceTest`、`DiscoveryQueryServiceViewMappingTest`、`DiscoverySearchAndNotificationBoundaryTest` | v0.9.0 | ✅ 已完成 |
 | PB-40 | 禁用违规账号并使其立即下线（ADR-003） | S4 | Should | 5 | #108 | #60、#61、#121 | `UserTest`、`AdminUserServiceTest`、`CampusOverflowFlowIT`、`DisableUserSessionRevocationIT` | v1.0.0 | ✅ 已完成（会话立即失效由 #121 的 `DisableUserSessionRevocationIT` 端到端覆盖） |
-| PB-41 | 查看和修改个人资料（学院、班级） | S4 | Could | 3 | #109 | — | `IdentityApiImplTest` | v1.0.0 | ⬜ 未开始 |
+| PB-41 | 查看和修改个人资料（学院、班级） | S4 | Could | 3 | #109 | #148 | `UserTest`、`UserProfileServiceTest` | v1.0.0 | 🟡 后端已实现（#148），前端待做 |
 | PB-42 | 获得更好的前端体验：分页/骨架屏/错误重试、Markdown 实时预览 | S4 | Should | 3 | #110 | — | — | v1.0.0 | ⬜ 未开始 |
 | PB-43 | 通知红点实时刷新（SSE 替代 30 秒轮询） | S4 | Could | 5 | #111 | — | — | v1.0.0 | ⬜ 未开始 |
 | PB-44 | 在 Grafana 看到发件箱积压、死信、对账不一致等指标 | S4 | Should | 2 | #112 | #136 | — | v1.0.0 | ✅ 已完成（面板 JSON 代码化，4 类指标） |

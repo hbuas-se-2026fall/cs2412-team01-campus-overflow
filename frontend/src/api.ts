@@ -91,6 +91,8 @@ export const api = {
   login: (username: string, password: string) => request<Me>('POST', '/v1/auth/login', { username, password }),
   logout: () => request<void>('POST', '/v1/auth/logout'),
   me: () => get<Me>('/v1/auth/me'),
+  // 只改学院/班级；学号与昵称是身份凭据，前端不提供入口
+  updateProfile: (patch: { college?: string; className?: string }) => request<Me>('PUT', '/v1/auth/me', patch),
 
   // 课程（Identity 上下文）：列表对未登录开放，此时 myRole 为 null
   courses: () => get<Course[]>('/v1/courses'),
