@@ -29,7 +29,7 @@ cp deploy/.env.example deploy/.env
 
 | # | 检查 | 做法 | 期望 | 结果 |
 | --: | :-- | :-- | :-- | :--: |
-| 1.1 | 占位值已清空 | `grep change_me deploy/.env` | 无输出 | ☐ |
+| 1.1 | 占位值已清空 | `grep -E 'change_me\|replace_with' deploy/.env` | 无输出 | ☐ |
 | 1.2 | 字段密钥已生成 | `openssl rand -base64 32` 填入 `CO_FIELD_KEY` | 44 字符 Base64 | ☐ |
 | 1.3 | Cookie 策略正确 | 纯 HTTP 演示设 `COOKIE_SECURE=false`；HTTPS 保持 `true` | 与访问方式一致 | ☐ |
 | 1.4 | 配置可解析 | `cd deploy && docker compose -f docker-compose.prod.yml config -q` | 退出码 0 | ☐ |
@@ -42,7 +42,7 @@ bash deploy/deploy.sh
 
 | # | 检查 | 期望 | 结果 |
 | --: | :-- | :-- | :--: |
-| 2.1 | 前置检查通过 | 不出现 `缺少 deploy/.env` / `change_me` 报错 | ☐ |
+| 2.1 | 前置检查通过 | 不出现 `缺少 deploy/.env`、`change_me` / `replace_with` 占位值报错 | ☐ |
 | 2.2 | 镜像构建 | backend 与 web 镜像构建成功（首次约 15 分钟） | ☐ |
 | 2.3 | 容器状态 | `docker ps` 中 `co-mysql-prod`/`co-redis-prod`/`co-backend-prod` 为 `(healthy)`，`co-web-prod` 为 `Up` | ☐ |
 | 2.4 | 脚本收尾 | 最后一行输出 `部署完成 ✔` | ☐ |
