@@ -127,6 +127,12 @@ jobs:
       - name: 架构约束检查
         run: mvn -B -f backend/pom.xml test -pl co-bootstrap -Dtest=ArchitectureTest
 
+      # 9.4 要求 docs/错误码.md 与实现一致。人肉对表迟早会漂（2026-11-28 核对时 33 个码没登记），
+      # 这里加一条硬检查：源码里出现未登记的码就让 backend job 失败。
+      # 脚本只读文件、不依赖 Maven，跑一次不到 1 秒。
+      - name: 错误码文档与实现一致性检查
+        run: python3 scripts/check-error-codes.py
+
       # 指导书 9.4 要求提交测试报告与覆盖率报告。CI 里本来就已经生成了 JaCoCo 站点，
       # 之前只在 runner 上待一会儿就没了，现在留档 14 天，报告里可以直接引 artifact 链接。
       - name: 上传覆盖率与测试报告
