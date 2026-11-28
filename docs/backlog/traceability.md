@@ -41,16 +41,16 @@
 | PB-34 | 收到新回答、被采纳、被认证、赢得悬赏、获得徽章等通知 | S3 | Must | 5 | #22 | — | `NotificationProjectorBoundaryAndOwnershipTest`、`NotificationProjectorTest`、`NotificationServiceTest` | v0.9.0 | 🟡 已完成待验收 |
 | PB-35 | 评论中被 @ 时我会收到提醒（每条最多 5 人） | S3 | Should | 3 | #23 | — | `CommentServiceTest` | v0.9.0 | 🟡 已完成待验收 |
 | PB-36 | 查看通知列表、未读数，并标记单条或全部已读 | S3 | Must | 3 | #105 | — | `NotificationProjectorBoundaryAndOwnershipTest`、`NotificationProjectorTest`、`NotificationServiceTest` | v0.9.0 | 🟡 已完成待验收 |
-| PB-37 | 端到端集成测试全绿且领域覆盖率 ≥ 70% | S3 | Must | 3 | #26 | #67 | — | v0.9.0 | 🟡 待本地 Docker 验证 |
+| PB-37 | 端到端集成测试全绿且领域覆盖率 ≥ 70% | S3 | Must | 3 | #26 | #67、#119 | `CampusOverflowFlowIT`、`DisableUserSessionRevocationIT` | v0.9.0 | ✅ 已完成（`e2e` job `Tests run: 6`） |
 | PB-38 | demo profile 能加载完整演示数据 | S3 | Should | 1 | #106 | #130 | — | v0.9.0 | ✅ 已完成（`demo` 实测：1 门课 / 6 账号 / 5 问题 / 1 悬赏；#130 又补两条跳表问题，供搜索与相关推荐演示） |
 | PB-39 | Discovery 应用层单元测试（验证投影幂等） | S3 | Must | 3 | #107 | — | `DiscoveryDomainTest`、`DiscoveryQueryServiceTest`、`DiscoveryQueryServiceViewMappingTest`、`DiscoverySearchAndNotificationBoundaryTest` | v0.9.0 | ✅ 已完成 |
 | PB-40 | 禁用违规账号并使其立即下线（ADR-003） | S4 | Should | 5 | #108 | #60、#61、#121 | `UserTest`、`AdminUserServiceTest`、`CampusOverflowFlowIT`、`DisableUserSessionRevocationIT` | v1.0.0 | ✅ 已完成（会话立即失效由 #121 的 `DisableUserSessionRevocationIT` 端到端覆盖） |
 | PB-41 | 查看和修改个人资料（学院、班级） | S4 | Could | 3 | #109 | — | `IdentityApiImplTest` | v1.0.0 | ⬜ 未开始 |
 | PB-42 | 获得更好的前端体验：分页/骨架屏/错误重试、Markdown 实时预览 | S4 | Should | 3 | #110 | — | — | v1.0.0 | ⬜ 未开始 |
 | PB-43 | 通知红点实时刷新（SSE 替代 30 秒轮询） | S4 | Could | 5 | #111 | — | — | v1.0.0 | ⬜ 未开始 |
-| PB-44 | 在 Grafana 看到发件箱积压、死信、对账不一致等指标 | S4 | Should | 2 | #112 | — | — | v1.0.0 | 🟡 配置已在，面板待补 |
+| PB-44 | 在 Grafana 看到发件箱积压、死信、对账不一致等指标 | S4 | Should | 2 | #112 | #136 | — | v1.0.0 | ✅ 已完成（面板 JSON 代码化，4 类指标） |
 | PB-45 | 问题列表做压测并验证缓存命中 | S4 | Could | 3 | #113 | — | — | v1.0.0 | ⬜ 未开始 |
-| PB-46 | 用 docker compose 一键部署 v1.0 并阅读 Release Notes | S4 | Must | 2 | #27 | — | — | v1.0.0 | 🟡 `deploy/` 已就绪，待实测 |
+| PB-46 | 用 docker compose 一键部署 v1.0 并阅读 Release Notes | S4 | Must | 2 | #27 | #124 | — | v1.0.0 | 🟡 冒烟已通过（#124），Release Notes 待 v1.0.0 |
 | PB-47 | 有管理页面：认证学生、创建教职工账号 | S4 | Could | 3 | #114 | — | `AdminUserServiceTest`、`BCryptPasswordHasherTest`、`CourseServiceTest`、`CourseTest` | v1.0.0 | ⬜ 未开始 |
 | PB-48 | 审批学生的选课申请 | — | Won't | 8 | #115 | — | `IdentityApiImplTest` | — | ⛔ 本期不做 |
 

@@ -51,16 +51,16 @@
 | 34 | PB-34 | 作为用户，我会收到新回答、被采纳、被认证、赢得悬赏、获得徽章等通知 | E5 | Must | 5 | S3 | PB-09、PB-10、PB-21 | `Notification.create`、`NotificationProjector` | 🟡 已完成待验收（v0.9.0） |
 | 35 | PB-35 | 作为用户，评论中被 @ 时我会收到提醒（每条最多 5 人） | E5 | Should | 3 | S3 | PB-15 | `MentionParser`、`on(CommentPosted)` | 🟡 已完成待验收（v0.9.0） |
 | 36 | PB-36 | 作为用户，我可以查看通知列表、未读数，并标记单条或全部已读 | E5 | Must | 3 | S3 | PB-34 | `NotificationService`、`markRead` | 🟡 已完成待验收（v0.9.0） |
-| 37 | PB-37 | 作为团队，端到端集成测试全绿且领域覆盖率 ≥ 70%，以便发布候选版本 | E6 | Must | 3 | S3 | PB-32、PB-34 | `CampusOverflowFlowIT`、JaCoCo | 🟡 待本地 Docker 验证 |
-| 38 | PB-38 | 作为演示者，demo profile 能加载完整演示数据 | E6 | Should | 1 | S3 | PB-24 | `DemoDataSeeder` | 🟡 待验证 |
+| 37 | PB-37 | 作为团队，端到端集成测试全绿且领域覆盖率 ≥ 70%，以便发布候选版本 | E6 | Must | 3 | S3 | PB-32、PB-34 | `CampusOverflowFlowIT`、JaCoCo | ✅ 已完成（`e2e` job 于 #119 进 CI，`Tests run: 6`；`mvn verify` 497 例，门禁 0.75 通过） |
+| 38 | PB-38 | 作为演示者，demo profile 能加载完整演示数据 | E6 | Should | 1 | S3 | PB-24 | `DemoDataSeeder` | ✅ 已完成（#130 + 本机实测：1 门课 / 6 账号 / 5 问题 / 1 悬赏；尚未纳入自动化测试） |
 | 39 | PB-39 | 作为团队，我们需要 Discovery 应用层单元测试（验证投影幂等） | E6 | Must | 3 | S3 | PB-32 | `co-discovery-application/src/test` | ✅ 已完成（32 个用例） |
-| 40 | PB-40 | 作为管理员，我可以禁用违规账号并使其立即下线（ADR-003） | E1 | Should | 5 | S4 | PB-05 | `User.disable` + 服务/接口/会话清理 | ⬜ 未开始 |
+| 40 | PB-40 | 作为管理员，我可以禁用违规账号并使其立即下线（ADR-003） | E1 | Should | 5 | S4 | PB-05 | `User.disable` + 服务/接口/会话清理 | ✅ 已完成（#60/#61 实现，#121 端到端验证会话立即失效；Issue #108 已关） |
 | 41 | PB-41 | 作为用户，我可以查看和修改个人资料（学院、班级） | E1 | Could | 3 | S4 | PB-05 | Identity 扩展 | ⬜ 未开始 |
-| 42 | PB-42 | 作为用户，我获得更好的前端体验：分页/骨架屏/错误重试、Markdown 实时预览 | E7 | Should | 3 | S4 | PB-19 | `frontend/` | ⬜ 未开始（部分已完成） |
+| 42 | PB-42 | 作为用户，我获得更好的前端体验：分页/骨架屏/错误重试、Markdown 实时预览 | E7 | Should | 3 | S4 | PB-19 | `frontend/` | ⬜ 未开始（Markdown 输入与渲染沿用 S1；分页、骨架屏、错误重试、实时预览均未做） |
 | 43 | PB-43 | 作为用户，通知红点实时刷新（SSE 替代 30 秒轮询） | E7 | Could | 5 | S4 | PB-36 | 前端 + 新接口 | ⬜ 未开始 |
-| 44 | PB-44 | 作为运维者，我可以在 Grafana 看到发件箱积压、死信、对账不一致等指标 | E6 | Should | 2 | S4 | PB-04 | `deploy/prometheus.yml`、Grafana | 🟡 配置已在，面板待补 |
+| 44 | PB-44 | 作为运维者，我可以在 Grafana 看到发件箱积压、死信、对账不一致等指标 | E6 | Should | 2 | S4 | PB-04 | `deploy/prometheus.yml`、Grafana | ✅ 已完成（#136：发件箱积压/死信/对账/延迟四类指标 + 面板 JSON 代码化） |
 | 45 | PB-45 | 作为团队，我们对问题列表做压测并验证缓存命中 | E6 | Could | 3 | S4 | PB-07 | 压测脚本 | ⬜ 未开始 |
-| 46 | PB-46 | 作为干系人，我可以用 docker compose 一键部署 v1.0 并阅读 Release Notes | E6 | Must | 2 | S4 | PB-02 | GitHub Release、镜像 | 🟡 `deploy/` 已就绪，待实测 |
+| 46 | PB-46 | 作为干系人，我可以用 docker compose 一键部署 v1.0 并阅读 Release Notes | E6 | Must | 2 | S4 | PB-02 | GitHub Release、镜像 | 🟡 `deploy/` 与 Deploy Smoke 已跑通（#124）；v1.0.0 Release Notes 随发布冲刺补齐 |
 | 47 | PB-47 | 作为管理员，我有管理页面：认证学生、创建教职工账号 | E1 | Could | 3 | S4 | PB-05 | 前端 + 已有接口 | ⬜ 未开始 |
 | 48 | PB-48 | 作为教师，我可以审批学生的选课申请 | E1 | Won't | 8 | — | — | Identity 扩展（留作后续） | ⛔ 本期不做 |
 
