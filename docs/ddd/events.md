@@ -62,6 +62,7 @@ sequenceDiagram
     actor U as 提问者
     participant C as QuestionController
     participant S as AnswerCommandService
+    participant ID as Identity
     participant Q as "Question 聚合"
     participant OB as outbox_event
     participant R as OutboxRelay
@@ -71,7 +72,7 @@ sequenceDiagram
     U->>C: PUT /api/v1/questions/{id}/accepted-answer
     C->>S: accept(actor, questionId, answerId)
     S->>S: 加载 Question / Answer（不存在 → 404）
-    S->>REP: （经 IdentityApi）canManageCourse
+    S->>ID: IdentityApi.canManageCourse(userId, courseId)
     S->>Q: accept(answer, actor, manages)
     Q-->>S: 校验通过（只能采纳一次、属于本题、未删除、有权限）
     S->>Q: save（同一事务）
