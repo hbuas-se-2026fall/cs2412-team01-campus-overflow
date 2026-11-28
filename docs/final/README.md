@@ -11,6 +11,8 @@
 | `screenshots/` | 关键页面截图：问答闭环、声誉变化、搜索、通知 | 前端负责人 | 12-08 |
 | `architecture.png` | 上下文映射图（从 `docs/ddd/context-map.md` 导出） | 架构讲解人 | 12-08 |
 
+分镜、录像节奏、截图清单与预设问答见 [demo-script.md](demo-script.md)。
+
 ## PPT 结构（与指导书 6.6.2 的演示脚本一致）
 
 1. 产品愿景与团队分工（1 min）
