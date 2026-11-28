@@ -72,6 +72,7 @@ cd ../frontend && npm install && npm run dev      # http://localhost:5173
 | 发布说明 | [docs/release/](docs/release/)（v0.1.0 ~ v0.9.0，索引见 [README](docs/release/README.md)） |
 | 版本变更日志 | [CHANGELOG.md](CHANGELOG.md) |
 | 部署与运维 | [deploy/README.md](deploy/README.md) |
+| 使用者操作说明 | [docs/用户手册.md](docs/用户手册.md)（注册、提问、投票、悬赏、通知、演示账号、常见问题） |
 | 起始代码的 107 个 TODO 清单（历史存档） | [docs/学生任务清单.md](docs/学生任务清单.md) |
 
 ## 5. 团队与协作
