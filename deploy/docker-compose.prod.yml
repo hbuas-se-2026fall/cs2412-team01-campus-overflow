@@ -105,7 +105,12 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?必须在 deploy/.env 中设置}
     depends_on: [prometheus]
     ports: ["127.0.0.1:3000:3000"]   # 只绑定本机，通过 SSH 隧道访问
-    volumes: ["grafana-prod-data:/var/lib/grafana"]
+    volumes:
+      - grafana-prod-data:/var/lib/grafana
+      # 数据源与仪表盘全部代码化（PB-44）：
+      # 重建容器/换机器后开箱即有数据源和「CampusOverflow 运行概览」面板，无需手工点。
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     logging: *default-logging
 
 volumes:

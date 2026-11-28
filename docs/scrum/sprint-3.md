@@ -1,7 +1,7 @@
 # Sprint 3（2026-11-20 ~ 2026-12-03）· 内容发现与端到端贯通
 
 > Sprint 类型：开发冲刺（2 周）｜SM：张博（@llll-b01）｜PO：韦国超（@jingmo2233）
-> 版本标签：`v0.9.0`（RC，**待创建**）｜评审日期：2026-12-03
+> 版本标签：`v0.9.0`（RC，**已创建** → `515b87c`，2026-11-28）｜评审日期：2026-12-03
 
 ## 1. Sprint Goal
 
@@ -59,7 +59,7 @@
 | 端到端测试 | `CampusOverflowFlowIT`：CI 已开启（#119，独立 `e2e` job），4/4 通过（29.6 s，含拉取 mysql:8.0.39 与 redis:7-alpine）；本地 `mvn verify` 497 例全绿（#67） | `mvn verify` |
 | 领域覆盖率 | 要求 ≥ 70%，门禁已设 0.75（#62）（`co-discovery-domain` 当前已补至 100%） | JaCoCo |
 | 燃尽图 | 见 [burndown/sprint-3.csv](burndown/sprint-3.csv)（SM 每站会后更新） | 本目录 |
-| 版本标签 | `v0.9.0` —— 待创建 | `git tag` |
+| 版本标签 | `v0.9.0` —— 已创建（`515b87c`，2026-11-28，GitHub pre-release） | `git tag` |
 
 > **说明**：Discovery 的 31 个方法其实现提交发生在 10-27（`6c1f74a`），早于本 Sprint 窗口。
 > 本 Sprint 的真实工作是**端到端验证、幂等测试与行走骨架清理**，评审时按此口径解释，
